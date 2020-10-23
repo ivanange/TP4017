@@ -22,5 +22,31 @@ struct Graph
     int taille;
 };
 
+
+
+typedef struct Noeud Noeud;
+struct Noeud
+{
+    int valeur;
+    int rang;
+    Noeud *parent;
+};
+
+Noeud* creer_ensemble(int x);
+Noeud* Trouver_ensemble(Noeud* n);
+void Lier(Noeud* x,Noeud* y);
+void Unifier(Noeud* x,Noeud* y);
+
+
+typedef struct Arete Arete;
+struct Arete
+{
+    Noeud *source;
+    Noeud *destination;
+    int poids;
+};
+
+void Kruskal(Arete *tab, int taille);
+
 Liste *parseLine( char *line );
 Element *makeElement( char *item );

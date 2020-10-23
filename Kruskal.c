@@ -1,30 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "utils.h"
 
-
-typedef struct Noeud Noeud;
-struct Noeud
-{
-    int valeur;
-    int rang;
-    Noeud *parent;
-};
-
-Noeud* creer_ensemble(int x);
-Noeud* Trouver_ensemble(Noeud* n);
-void Lier(Noeud* x,Noeud* y);
-void Unifier(Noeud* x,Noeud* y);
-
-
-typedef struct Arete Arete;
-struct Arete
-{
-    Noeud *source;
-    Noeud *destination;
-    int poids;
-};
-
-void Kruskal(Arete *tab, int taille);
 
 void Tri(Arete *tableau, int taille)
 {
@@ -49,7 +26,7 @@ void Tri(Arete *tableau, int taille)
 
 int main()
 {
-    const int na, ns
+    const int na, ns;
     Arete a1, A[na]; // IL FAUT LE NOMBRE D'ARRET
     Noeud *S[ns]; // IL FAUT LE NOMBRE DE SOMMET
     //Arete *mini;
