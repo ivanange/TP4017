@@ -3,11 +3,15 @@
 #include <string.h>
 #include "utils.h"
 #define TAILLE_MAX 1000
+#if defined(_WIN32) || defined(_WIN64)
+/* We are on Windows */
+# define strtok_r strtok_s
+#endif
 
 int countLines( FILE *file ) {
     int i = 0;
     char string[TAILLE_MAX];
-    while (fgets(string, TAILLE_MAX, file) != NULL) i++;
+    while (fgets(string, TAILLE_MAX, file) != NULL) {i++;}
 
     rewind(file);
 
