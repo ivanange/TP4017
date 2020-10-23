@@ -13,12 +13,13 @@ typedef struct Liste Liste;
 struct Liste
 {
     Element *tete;
+    int taille;
 };
 
 typedef struct Graph Graph;
 struct Graph
 {
-    Liste *sommets[NOMBRE_MAX_SOMMETS];
+    Liste **sommets;
     int taille;
 };
 
@@ -50,3 +51,4 @@ void Kruskal(Arete *tab, int taille);
 
 Liste *parseLine( char *line );
 Element *makeElement( char *item );
+Graph *makeGraph( const char *filename );
