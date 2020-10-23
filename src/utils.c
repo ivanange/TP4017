@@ -4,6 +4,15 @@
 #include "utils.h"
 #define TAILLE_MAX 1000
 
+int countLines( FILE *file ) {
+    int i = 0;
+    char string[TAILLE_MAX];
+    while (fgets(string, TAILLE_MAX, file) != NULL) i++;
+
+    rewind(file);
+
+    return i;
+}
 
 
 Liste *parseLine( char *line ) {
@@ -21,12 +30,15 @@ Liste *parseLine( char *line ) {
 
     token = strtok_r(NULL, ",", &rest);
 
+    int i = 1;
     while( token != NULL) {
         next->suivant = makeElement(token);
         next = next->suivant;
         token = strtok_r(NULL, ",", &rest);
+        i++;
     }
 
+    liste->taille = i;
     return liste;
 }
 
@@ -49,7 +61,7 @@ Element *makeElement( char *item ) {
 
 Graph *makeGraph(const char *filename) {
 
-    char path[FILENAME_MAX];
+    char path[FILENAME_MAX] = "./graphs/";
     strcat(path, filename);
     FILE* fichier  = fopen(path, "r");
     Graph *graph = malloc(sizeof(Graph));
@@ -58,6 +70,7 @@ Graph *makeGraph(const char *filename) {
 
     if (fichier != NULL)
     {
+        graph->sommets = calloc( countLines(fichier), sizeof(Liste));
         while (fgets(chaine, TAILLE_MAX, fichier) != NULL) 
         {
             //printf("%s", chaine);
@@ -69,19 +82,6 @@ Graph *makeGraph(const char *filename) {
     }
 
     fclose(fichier);
+
+    return graph;
 }
-
-
-int main(int argc, char *argv[])
-{
-    Graph *graph = makeGraph("./graphs/graph1.txt"); 
-    return 0;
-}
-
-// print list
-// Element *next = (sommets[i-1])->tete;
-// while (next != NULL)
-// {
-//     printf("\nvaleur: %d, poids: %d \n", next->valeur, next->poids);
-//     next = next->suivant;
-// }
