@@ -2,42 +2,20 @@
 #include <stdlib.h>
 #include "utils.h"
 
-
-void Tri(Arete *tableau, int taille)
-{
-    Arete cle;
-    int k, i;
-
-    for (i = 1 ; i < taille  ; i++)
-    {
-        cle = tableau[i];
-        k = i - 1;
-
-        while(k>=0 && tableau[k].poids > cle.poids)
-        {
-            tableau[k+1] = tableau[k];
-            k = k - 1;
-        }
-        tableau[k+1] = cle;
-    }
-
-}
-
-
 int main()
 {
     Graph *graph = makeGraph("graph1.txt");
     const int na = countArcs(graph), ns = graph->taille;
-    Arete a, A[na]; // IL FAUT LE NOMBRE D'ARRET
+    Arete *a, A[na]; // IL FAUT LE NOMBRE D'ARRET
     Noeud *S[ns]; // IL FAUT LE NOMBRE DE SOMMET
-    int i, j=0;
+    int valeur, i, j=0;
     // printf("sommets: %d arrets: %d\n", ns, na);
 
     //Crée tableau des sommets
-    // for(i = 0; i<ns; i++)
-    // {
-    //     S[i] = creer_ensemble(graph->sommets[i]->tete->valeur);
-    // }
+    for( i = 0; i < ns;  i++ ) {
+        valeur = graph->sommets[i]->tete->valeur;
+        S[valeur] = creer_ensemble(valeur);
+    }
 
     // crée tableau d'arrets
     for( i = 0; i < ns;  i++ ) {
@@ -46,22 +24,18 @@ int main()
 
         while (next != NULL)
         {
-            a.destination = creer_ensemble(next->valeur);
-            a.source = creer_ensemble(graph->sommets[i]->tete->valeur);
-            a.poids = next->poids;
+            a = malloc(sizeof(Arete));
+            a->destination = S[next->valeur];
+            a->source = S[graph->sommets[i]->tete->valeur];
+            a->poids = next->poids;
             // printf("souce: %d, destination: %d, poids: %d", a.source->valeur, );
-            A[j] = a;
+            A[j] = *a;
             next = next->suivant;
             j++;
         }
     }
 
-
     Kruskal(A, na);
-    for(j = 0; j < na; j++ )
-    {
-        printf("%d\n", A[j].poids);
-    }
 
     return 0;
 }
@@ -83,18 +57,23 @@ void Kruskal(Arete *tab, int taille)
     {
         if(Trouver_ensemble(tab[i].destination)->valeur != Trouver_ensemble(tab[i].source)->valeur )
         {
+            Arete a;
+            a.destination = tab[i].source;
+            a.source = tab[i].destination;
+            a.poids = tab[i].poids;
+
             S[j] = tab[i];
-            j = j + 1;
+            S[j+1] = a;
+            j = j + 2;
             Unifier(tab[i].destination, tab[i].source);
         }
     }
 
-    printf("%d, taille: %d \n", j, taille);
+    // printf("\n%d, taille: %d \n", j, taille);
 
-    while(j<taille)
+    for(int k = 0; k < j; k++ )
     {
-        tab[j].poids = 0;
-        j = j + 1;
+        printf("%d-%d->%d\n", S[k].source->valeur, S[k].poids, S[k].destination->valeur);
     }
 }
 
@@ -145,5 +124,25 @@ void Lier(Noeud* x,Noeud* y)
 void Unifier(Noeud* x,Noeud* y)
 {
     Lier(Trouver_ensemble(x), Trouver_ensemble(y));
+}
+
+void Tri(Arete *tableau, int taille)
+{
+    Arete cle;
+    int k, i;
+
+    for (i = 1 ; i < taille  ; i++)
+    {
+        cle = tableau[i];
+        k = i - 1;
+
+        while(k>=0 && tableau[k].poids > cle.poids)
+        {
+            tableau[k+1] = tableau[k];
+            k = k - 1;
+        }
+        tableau[k+1] = cle;
+    }
+
 }
 
