@@ -26,31 +26,39 @@ void Tri(Arete *tableau, int taille)
 
 int main()
 {
-    const int na, ns;
-    Arete a1, A[na]; // IL FAUT LE NOMBRE D'ARRET
+    Graph *graph = makeGraph("graph1.txt");
+    const int na = countArcs(graph), ns = graph->taille;
+    Arete a, A[na]; // IL FAUT LE NOMBRE D'ARRET
     Noeud *S[ns]; // IL FAUT LE NOMBRE DE SOMMET
-    //Arete *mini;
-    for(int i = 0; i<ns; i++)
-    {
-        S[i] = Noeud *e1 = creer_ensemble(1)
+    int i, j=0;
+    // printf("sommets: %d arrets: %d\n", ns, na);
+
+    //Crée tableau des sommets
+    // for(i = 0; i<ns; i++)
+    // {
+    //     S[i] = creer_ensemble(graph->sommets[i]->tete->valeur);
+    // }
+
+    // crée tableau d'arrets
+    for( i = 0; i < ns;  i++ ) {
+
+        Element *next = graph->sommets[i]->tete->suivant;
+
+        while (next != NULL)
+        {
+            a.destination = creer_ensemble(next->valeur);
+            a.source = creer_ensemble(graph->sommets[i]->tete->valeur);
+            a.poids = next->poids;
+            // printf("souce: %d, destination: %d, poids: %d", a.source->valeur, );
+            A[j] = a;
+            next = next->suivant;
+            j++;
+        }
     }
-    //Noeud *e1 = creer_ensemble(1);
-    for(int i = 0; i<na; i++)
-    {
-        a.destination = e3;
-        a.source = e1;
-        a.poids = 1;
-        A[i] = a;
-    }
-    //a1.destination = e3;
-    //a1.source = e1;
-    //a1.poids = 1;
 
 
-    int  j;
     Kruskal(A, na);
-    //Tri(t, 6);
-    for(j = 0; j <= 5; j++ )
+    for(j = 0; j < na; j++ )
     {
         printf("%d\n", A[j].poids);
     }
@@ -67,17 +75,21 @@ int main()
 void Kruskal(Arete *tab, int taille)
 {
     int i = 0, j = 0;
+    Arete *S = calloc(taille, sizeof(Arete));
+
     Tri(tab, taille);
 
     for(i=0; i<taille; i++)
     {
         if(Trouver_ensemble(tab[i].destination)->valeur != Trouver_ensemble(tab[i].source)->valeur )
         {
-            tab[j] = tab[i];
+            S[j] = tab[i];
             j = j + 1;
             Unifier(tab[i].destination, tab[i].source);
         }
     }
+
+    printf("%d, taille: %d \n", j, taille);
 
     while(j<taille)
     {
@@ -100,7 +112,6 @@ Noeud* creer_ensemble(int x)
     noeud->parent = noeud;
 
     return noeud;
-
 }
 
 
@@ -121,7 +132,7 @@ Noeud* Trouver_ensemble(Noeud* n)
 void Lier(Noeud* x,Noeud* y)
 {
     if(x->rang > y->rang)
-    {
+    { 
         y->parent = x;
     }
     else x->parent = y;
