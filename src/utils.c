@@ -4,6 +4,18 @@
 #include "utils.h"
 #define TAILLE_MAX 1000
 
+Noeud **makeSommets(Graph *graph) {
+    int i, valeur, ns = graph->taille;
+    Noeud **S = calloc(ns, sizeof(Noeud));
+        //Crée tableau des sommets
+    for( i = 0; i < ns;  i++ ) {
+        valeur = graph->sommets[i]->tete->valeur;
+        S[valeur] = creer_ensemble(valeur);
+    }
+    return S;
+}
+
+
 int countArcs( Graph *graph) {
     int i, sum = 0, n = graph->taille;
 

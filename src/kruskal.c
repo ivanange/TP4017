@@ -6,16 +6,9 @@ int main()
 {
     Graph *graph = makeGraph("graph1.txt");
     const int na = countArcs(graph), ns = graph->taille;
-    Arete *a, A[na]; // IL FAUT LE NOMBRE D'ARRET
-    Noeud *S[ns]; // IL FAUT LE NOMBRE DE SOMMET
+    Arete *a, A[na]; 
+    Noeud **S = makeSommets(graph); 
     int valeur, i, j=0;
-    // printf("sommets: %d arrets: %d\n", ns, na);
-
-    //Crée tableau des sommets
-    for( i = 0; i < ns;  i++ ) {
-        valeur = graph->sommets[i]->tete->valeur;
-        S[valeur] = creer_ensemble(valeur);
-    }
 
     // crée tableau d'arrets
     for( i = 0; i < ns;  i++ ) {

@@ -1,155 +1,189 @@
 #include <stdio.h>
 #include <stdlib.h>
-#define TAILLE 6			/* nombre de sommets du graphe */
-#define MAXINT 1000			/* un tres grand entier */
+#include "utils.h"
 
-typedef struct cellule			/* noeud, poids et pointeur */
-{	int numero;
-	int poids;
-	struct cellule *suivant;
-} Cellule, *LISTE;
-
-LISTE graphe[TAILLE];			/* graphe = tableau de listes */
-int D[TAILLE];				/* Les distances trouvees a chaque instant */
-int queue[TAILLE];			/* file pour les sommets selon D croissant */
-int ordre[TAILLE];			/* Ordre de chaque sommet dans la file selon D croissant */
-int explore[TAILLE];			/* Pour les sommets deja ajoutes */
-int C[TAILLE];				/* pour le predecesseur de chaque sommet ajoute */
-int u;
-
-/* Alloue un noeud sans initialiser */
-Cellule *AlloueCellule()
+int main()
 {
-  Cellule *cell = (Cellule *) malloc(sizeof(Cellule));
-  return cell;
-}
 
-/* Cree un noeud en l'initialisant avec deux valeurs. */
-Cellule *CreeCellule(int cle, int lon)
-{
-  Cellule *n = AlloueCellule();
-  n->numero = cle;
-  n->poids = lon;
-  n->suivant = NULL;
-  return n;
-}
+    Noeud *u, *p;
+    Graph *graph = makeGraph("graph1.txt");
+    int i, j, k = 0, ns = graph->taille, na = countArcs(graph);
+    Noeud **G = makeSommets(graph);
+    Arete *arbre = calloc(na, sizeof(Arete)), *aret;
+    Element **adj = calloc(ns, sizeof(Element)); 
 
-/* Initialisation des diverses variables */
-void initialisation(void)
-{
-  int i;
-  for(i = 0; i<TAILLE; i++)
-  {
-    D[i] = MAXINT; queue[i] = i; ordre[i] = i; explore[i] = 0;
-  }
-  D[0] = 0; C[0] = -1;			/* On commence par 0 */
-}
-
-/* Operation sur les files d'attente */
-void echanger(int i, int j)		/* echanger deux sommets dans la queue */
-{
-  int a;
-  ordre[queue[i]] = j; ordre[queue[j]] = i;
-  a = queue[i]; queue[i] = queue[j]; queue[j] = a;
-}
-
-/* retablit la condition de file de maniere descendante sur les longueur positions de la file */
-void echange_descendant(int longueur, int i)
-{
-  int fils=2*i+1;
-  if(fils>=longueur) return;
-  if((fils<longueur-1)&&(D[queue[fils]]>D[queue[fils+1]])) fils=fils+1;
-  if(D[queue[i]]>D[queue[fils]])
-   {
-      echanger(i,fils);
-      echange_descendant(longueur, fils);
-   }
-}
-
-/* retablit la condition de file de maniere ascendante sur les longueur positions de la file */
-void echange_montant(int longueur, int i)
-{
-  int pere=(i-1)/2;
-  if(D[queue[i]]<D[queue[pere]])
-   {
-      echanger(pere,i);
-      echange_montant(longueur, pere);
-   }
-}
-
-/* retourne le minimum dans la file et retablit l'ordre */
-int minimum(int longueur)
-{
-  int a = queue[0];
-  explore[a] = 1;
-  if(longueur > 1)
-  {
-    echanger(0, longueur-1);
-    echange_descendant(longueur-1, 0);
-  }
-  return a;
-}
-
-/* algorithme de Prim. Premiere etape, on ajoute un sommet, puis on actualise */
-void prim_iteration(int longueur)	/* nombre de sommets non encore inclus */
-{
-  Cellule *c;
-  int a;
-  a = minimum(longueur);		/* extraction du minimum */
-  int j;
-  for(c=graphe[a]; c != NULL; c=c->suivant)
-  {
-    j = c->numero;
-    if((explore[j] == 0)&&(c->poids < D[j]))
-    {
-      D[j] = c->poids; C[j] = a; echange_montant(longueur-1, ordre[j]); /* si actualisation */
+    for( i = 0; i < ns;  i++ ) {
+        adj[graph->sommets[i]->tete->valeur] = graph->sommets[i]->tete->suivant;
     }
-  }
+
+
+    File *fil = malloc(sizeof(File));
+    Cellule *c1 = malloc(sizeof(Cellule));
+    c1->sommet = G[1];
+    c1->suivant = NULL;
+    fil->premier = c1;
+
+    for ( i = 2; i <= ns; i++)
+    {
+        enfiler(fil, G[i]);
+    }
+
+    fil->premier->sommet->rang = 0;
+
+    while ((u = extraireMin(fil)) != NULL) {
+
+        // crée abreacouvrant minimum
+        if( u->parent != NULL ) {
+            aret = malloc(sizeof(Arete));
+            aret->destination = u->parent;
+            aret->source = u;
+            aret->poids = u->rang;
+            arbre[k] = *aret;
+            k++;
+            aret = malloc(sizeof(Arete));
+            aret->destination = u;
+            aret->source = u->parent;
+            aret->poids = u->rang;
+            arbre[k] = *aret;
+            k++;
+        }
+
+        Element *v = adj[u->valeur];
+        while ( v != NULL)
+        {
+            if ( rechercheFile(fil, v->valeur) > 0 && v->poids < G[v->valeur]->rang )
+            {
+                G[v->valeur]->parent = u;
+                G[v->valeur]->rang = v->poids;
+            }
+            
+            v = v->suivant;
+        }
+
+        p = u;
+        
+    }
+
+    for(j = 0; j < k; j++ )
+    {
+        printf("%d-%d->%d\n", arbre[j].source->valeur, arbre[j].poids, arbre[j].destination->valeur);
+    }
+
+    return 0;
 }
 
-void prim(void)
+
+
+void enfiler(File *file, Noeud *nvNoeud)
 {
-  int i;
-  initialisation();
-  for(i=TAILLE; i>0; i--) prim_iteration(i);
+    Cellule *nouveau = malloc(sizeof(*nouveau));
+    if (file == NULL || nouveau == NULL)
+    {
+    exit(EXIT_FAILURE);
+    }
+
+    nouveau->sommet = nvNoeud;
+    nouveau->suivant = NULL;
+    if (file->premier != NULL) /* La file n'est pas vide */
+    {
+        Cellule *elementActuel = file->premier;
+        while (elementActuel->suivant != NULL)
+        {
+            elementActuel = elementActuel->suivant;
+        }
+        elementActuel->suivant = nouveau;
+    }
+    else 
+    {
+        file->premier = nouveau;
+    }
 }
 
-/* Symetrise le graphe */
-void symetrise(void)
+
+Noeud* extraireMin(File *file)
 {
-  int i, j;
-  Cellule *c, *u; 
-  for(i = TAILLE - 1; i >= 0; i--)		/* Evite de parcourir les cellules ajoutees */
-  for(c = graphe[i]; c != NULL; c = c->suivant)	/* Parcourt les successeurs j de i */
-  {
-    j = c->numero; u = CreeCellule(i, c->poids);
-    u->suivant = graphe[j]; graphe[j] = u;	/* Ajoute i comme successeur de j */
-  }
+    int min;
+    Noeud *n1 = NULL;
+    if (file->premier == NULL)
+    {
+        return NULL;
+    }
+
+    if (file->premier != NULL)
+    {
+        
+        Cellule *precedent = NULL, *elementActuel = file->premier;
+        
+        min = file->premier->sommet->rang;
+        n1 = elementActuel->sommet;
+
+        while (elementActuel->suivant != NULL)
+        {
+            if(elementActuel->suivant->sommet->rang < min)
+            {
+                precedent = elementActuel;
+                elementActuel = elementActuel->suivant;
+                n1 = elementActuel->sommet;
+                min = elementActuel->sommet->rang;
+            }
+            else elementActuel = elementActuel->suivant;
+            
+        }
+
+
+        if(precedent == NULL)
+        {
+            file->premier = file->premier->suivant;
+        }
+        else {
+            precedent->suivant = precedent->suivant->suivant;
+        }
+
+    }
+
+return n1;
+
 }
 
-int main(void)
+
+void afficherFile(File *file)
 {
-  int i; Cellule *c;
-  int poids_total = 0;
-  Cellule *c1, *c2, *c3;
-  c1 = CreeCellule(1,6); c2 = CreeCellule(2,1); c3 = CreeCellule(3,5);
-  graphe[0]=c1; c1->suivant=c2; c2->suivant=c3;
-  c1 = CreeCellule(2,5); c2 = CreeCellule(4,3);
-  graphe[1]=c1; c1->suivant=c2;
-  c1 = CreeCellule(3,5); c2 = CreeCellule(4,6); c3 = CreeCellule(5,4);
-  graphe[2]=c1; c1->suivant=c2; c2->suivant=c3;
-  c1 = CreeCellule(5,2);
-  graphe[3]=c1;
-  c1 = CreeCellule(5,6);
-  graphe[4]=c1;
-  graphe[5]=NULL;
-  symetrise();
-  prim();
-  for(i=0; i<TAILLE; i++)
-  {
-    poids_total = poids_total + D[i];
-    printf("arete %d %d, poids %d\n", i, C[i], D[i]);
-  }
-  printf("poids total %d\n", poids_total);
+    Cellule *elementActuel = file->premier;
+    while(elementActuel != NULL)
+    {
+        elementActuel = elementActuel->suivant;
+    }
 }
 
+int rechercheFile(File *file, int n)
+{
+    Cellule *elementActuel = file->premier;
+    while(elementActuel != NULL)
+    {
+        if (elementActuel->sommet->valeur == n )
+        {
+           return 1;
+        }
+        
+        elementActuel = elementActuel->suivant;
+    }
+
+    return 0;
+}
+
+
+
+Noeud* creer_ensemble(int x)
+{
+    Noeud *noeud = malloc(sizeof(Noeud));
+
+    if (noeud == NULL)
+    {
+        exit(EXIT_FAILURE);
+    }
+    noeud->valeur = x;
+    noeud->rang = INFINITY;
+    noeud->parent = NULL;
+
+    return noeud;
+}

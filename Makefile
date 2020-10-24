@@ -19,11 +19,17 @@ $(OBJ)/main.o: $(SRC)/main.c
 $(OBJ)/kruskal.o: $(SRC)/kruskal.c
 	$(CC) $(CFLAGS) $(SRC)/kruskal.c -o $(OBJ)/kruskal.o
 
+$(OBJ)/prim.o: $(SRC)/prim.c
+	$(CC) $(CFLAGS) $(SRC)/prim.c -o $(OBJ)/prim.o
+
 app: ${OBJECTS} ${MAINOBJECTS}
 	$(CC) -o $(BIN)/app.exe ${OBJECTS} ${MAINOBJECTS}
 
 kruskal: ${OBJECTS} $(OBJ)/kruskal.o
 	$(CC) -o $(BIN)/kruskal.exe ${OBJECTS} $(OBJ)/kruskal.o
+
+prim: ${OBJECTS} $(OBJ)/prim.o
+	$(CC) -o $(BIN)/prim.exe ${OBJECTS} $(OBJ)/prim.o
 
 clean: 
 	rm -rf $(OBJ)/*.o
@@ -33,8 +39,11 @@ empty:
 	del /F /Q $(OBJ)\*
 	del /F /Q $(BIN)\*.exe
 
-run: app kruskal
+run: app kruskal prim
 	./$(BIN)/app.exe
 
 run-kruskal: kruskal
 	./$(BIN)/kruskal.exe
+
+run-prim: prim
+	./$(BIN)/prim.exe

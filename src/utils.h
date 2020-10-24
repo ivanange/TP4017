@@ -1,5 +1,6 @@
 
 #define NOMBRE_MAX_SOMMETS 10000
+#define INFINITY 2147483647
 
 typedef struct Element Element;
 struct Element
@@ -23,8 +24,6 @@ struct Graph
     int taille;
 };
 
-
-
 typedef struct Noeud Noeud;
 struct Noeud
 {
@@ -32,12 +31,6 @@ struct Noeud
     int rang;
     Noeud *parent;
 };
-
-Noeud* creer_ensemble(int x);
-Noeud* Trouver_ensemble(Noeud* n);
-void Lier(Noeud* x,Noeud* y);
-void Unifier(Noeud* x,Noeud* y);
-
 
 typedef struct Arete Arete;
 struct Arete
@@ -47,9 +40,33 @@ struct Arete
     int poids;
 };
 
+typedef struct Cellule Cellule;
+struct Cellule
+{
+    Noeud *sommet;
+    Cellule *suivant;
+};
+
+typedef struct File File;
+struct File
+{
+    Cellule *premier;
+};
+
+void enfiler(File *file, Noeud *nvNoeud);
+void afficherFile(File *file);
+Noeud* extraireMin(File *file);
+int rechercheFile(File *file, int n);
+
+Noeud* creer_ensemble(int x);
+Noeud* Trouver_ensemble(Noeud* n);
+void Lier(Noeud* x,Noeud* y);
+void Unifier(Noeud* x,Noeud* y);
+
 void Kruskal(Arete *tab, int taille);
 
 Liste *parseLine( char *line );
 Element *makeElement( char *item );
 Graph *makeGraph( const char *filename );
 int countArcs( Graph *graph);
+Noeud **makeSommets(Graph *graph);
