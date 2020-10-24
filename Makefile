@@ -16,16 +16,25 @@ $(OBJ)/utils.o: $(SRC)/utils.c
 $(OBJ)/main.o: $(SRC)/main.c
 	$(CC) $(CFLAGS) $(SRC)/main.c -o $(OBJ)/main.o
 
+$(OBJ)/kruskal.o: $(SRC)/kruskal.c
+	$(CC) $(CFLAGS) $(SRC)/kruskal.c -o $(OBJ)/kruskal.o
+
 app: ${OBJECTS} ${MAINOBJECTS}
 	$(CC) -o $(BIN)/app.exe ${OBJECTS} ${MAINOBJECTS}
 
+kruskal: ${OBJECTS} $(OBJ)/kruskal.o
+	$(CC) -o $(BIN)/kruskal.exe ${OBJECTS} $(OBJ)/kruskal.o
+
 clean: 
 	rm -rf $(OBJ)/*.o
-	rm -rf $(BIN)/app.exe
+	rm -rf $(BIN)/*.exe
 
 empty: 
 	del /F /Q $(OBJ)\*
-	del /F /Q $(BIN)\app.exe
+	del /F /Q $(BIN)\*.exe
 
-run: app
+run: app kruskal
 	./$(BIN)/app.exe
+
+run-kruskal: kruskal
+	./$(BIN)/kruskal.exe

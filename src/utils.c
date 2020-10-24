@@ -3,10 +3,15 @@
 #include <string.h>
 #include "utils.h"
 #define TAILLE_MAX 1000
-#if defined(_WIN32) || defined(_WIN64)
-/* We are on Windows */
-# define strtok_r strtok_s
-#endif
+
+int countArcs( Graph *graph) {
+    int i, sum = 0, n = graph->taille;
+
+    for( i = 0; i < n;  i++ ) {
+        sum+= graph->sommets[i]->taille;
+    }
+    return sum;
+}
 
 int countLines( FILE *file ) {
     int i = 0;
@@ -42,7 +47,7 @@ Liste *parseLine( char *line ) {
         i++;
     }
 
-    liste->taille = i;
+    liste->taille = i-1;
     return liste;
 }
 

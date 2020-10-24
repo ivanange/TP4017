@@ -52,3 +52,4 @@ void Kruskal(Arete *tab, int taille);
 Liste *parseLine( char *line );
 Element *makeElement( char *item );
 Graph *makeGraph( const char *filename );
+int countArcs( Graph *graph);
