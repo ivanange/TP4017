@@ -1,12 +1,32 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>  
 #include "utils.h"
 
-int main()
+int main(int argc, char **argv)
 {
+    char *file = "graph1.txt";
+    int opt;
 
-    Noeud *u, *p;
-    Graph *graph = makeGraph("graph1.txt");
+        while((opt = getopt(argc, argv, ":sf:")) != -1)  
+    {  
+        switch(opt)  
+        {  
+
+            case 'f':  
+                file = optarg;
+                break;  
+            case ':':  
+                printf("option needs a value\n");  
+                break;  
+            case '?':  
+                printf("unknown option: %c\n", optopt); 
+                break;  
+        }  
+    } 
+
+    Noeud *u;
+    Graph *graph = makeGraph(file);
     int i, j, k = 0, ns = graph->taille, na = countArcs(graph);
     Noeud **G = makeSommets(graph);
     Arete *arbre = calloc(na, sizeof(Arete)), *aret;
@@ -60,7 +80,6 @@ int main()
             v = v->suivant;
         }
 
-        p = u;
         
     }
 

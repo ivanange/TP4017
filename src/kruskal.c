@@ -1,14 +1,35 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>  
 #include "utils.h"
 
-int main()
+int main(int argc, char **argv)
 {
-    Graph *graph = makeGraph("graph1.txt");
+        char *file = "graph1.txt";
+    int opt;
+
+        while((opt = getopt(argc, argv, ":sf:")) != -1)  
+    {  
+        switch(opt)  
+        {  
+
+            case 'f':  
+                file = optarg;
+                break;  
+            case ':':  
+                printf("option needs a value\n");  
+                break;  
+            case '?':  
+                printf("unknown option: %c\n", optopt); 
+                break;  
+        }  
+    } 
+
+    Graph *graph = makeGraph(file);
     const int na = countArcs(graph), ns = graph->taille;
     Arete *a, A[na]; 
     Noeud **S = makeSommets(graph); 
-    int valeur, i, j=0;
+    int i, j=0;
 
     // crée tableau d'arrets
     for( i = 0; i < ns;  i++ ) {

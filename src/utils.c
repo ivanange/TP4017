@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "utils.h"
-#define TAILLE_MAX 1000
 
 Noeud **makeSommets(Graph *graph) {
     int i, valeur, ns = graph->taille;
