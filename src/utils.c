@@ -105,3 +105,13 @@ Graph *makeGraph(const char *filename) {
 
     return graph;
 }
+
+int convert( int v, int r) {
+    int remainder = 0, i = 1;
+    while(v > 0){
+        remainder += (v%r) * i;
+        v /= r;
+        i*=10;
+    }
+    return (int)remainder; 
+}

@@ -1,6 +1,5 @@
-
 #define NOMBRE_MAX_SOMMETS 10000
-#define INFINITY 2147483647
+#define INFINITE 2147483647
 #define TAILLE_MAX 1000
 
 typedef struct Element Element;
@@ -66,8 +65,11 @@ void Unifier(Noeud* x,Noeud* y);
 void Tri(Arete *tableau, int taille);
 void Kruskal(Arete *tab, int taille);
 
+// void relacher(Noeud *source, Noeud *destination);
+
 Liste *parseLine( char *line );
 Element *makeElement( char *item );
 Graph *makeGraph( const char *filename );
 int countArcs( Graph *graph);
 Noeud **makeSommets(Graph *graph);
+int convert(int v, int r);

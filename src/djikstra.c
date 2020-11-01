@@ -27,7 +27,7 @@ int main(int argc, char **argv)
 
     Noeud *u;
     Graph *graph = makeGraph(file);
-    int i, j, k = 0, ns = graph->taille, na = countArcs(graph);
+    int i, j, k = 0, ns = graph->taille, na = countArcs(graph), *poids = calloc(ns,sizeof(int));
     Noeud **G = makeSommets(graph);
     Arete *arbre = calloc(na, sizeof(Arete)), *aret;
     Element **adj = calloc(ns, sizeof(Element)); 
@@ -55,15 +55,9 @@ int main(int argc, char **argv)
         // crée abreacouvrant minimum
         if( u->parent != NULL ) {
             aret = malloc(sizeof(Arete));
-            aret->destination = u->parent;
-            aret->source = u;
-            aret->poids = u->rang;
-            arbre[k] = *aret;
-            k++;
-            aret = malloc(sizeof(Arete));
             aret->destination = u;
             aret->source = u->parent;
-            aret->poids = u->rang;
+            aret->poids = poids[u->valeur];
             arbre[k] = *aret;
             k++;
         }
@@ -71,14 +65,17 @@ int main(int argc, char **argv)
         Element *v = adj[u->valeur];
         while ( v != NULL)
         {
-            if ( rechercheFile(fil, v->valeur) > 0 && v->poids < G[v->valeur]->rang )
+            if ( G[v->valeur]->rang  > G[u->valeur]->rang  + v->poids )
             {
                 G[v->valeur]->parent = u;
-                G[v->valeur]->rang = v->poids;
+                G[v->valeur]->rang = G[u->valeur]->rang  + v->poids;
+                poids[v->valeur] = v->poids;
             }
             
             v = v->suivant;
         }
+
+        
     }
 
     for(j = 0; j < k; j++ )
