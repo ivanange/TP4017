@@ -12,7 +12,7 @@ void construct(){
         Selection selection = select();
         Solution *moves = selection.moves;
         Solution *move;
-
+        Solution *infeasible;
         if(feasible) {
             // if solution still feasible ( step C1)
 
@@ -20,7 +20,9 @@ void construct(){
             for(int i = 0; i < selection.size; i++) {
                 if(admissible(moves+i)) {
                     move = moves+i;
-                } 
+                    break;
+                }
+                else if(infeasible == NULL) infeasible = moves+i;
             }
 
             if(move != NULL) {
@@ -31,11 +33,12 @@ void construct(){
                 // no feasible move, check if current solution is a new best then go to C2
 
                 Solution *lastBest = TabulistHead(tabulist);
-                if(evalObjective(lastBest) < evalObjective(move)) {
+                if(evalObjective(lastBest) < evalObjective(&curSolution)) {
                     // new best solution
-                    addSolution(*move);
+                    addSolution(curSolution);
                 }
                 feasible = false;
+                tinker(&curSolution, infeasible);
                 construct();
             }
         }
@@ -75,9 +78,13 @@ void destroy(){
         Selection selection = select();
         Solution *moves = selection.moves;
         Solution *move;
+        Solution *infeasible;
 
         if(!feasible) {
             // if solution is not feasible ( step D1)
+
+            // retain infeasible move
+            infeasible = &curSolution;
 
             // do a move
             curSolution = *(move = moves);
@@ -90,7 +97,7 @@ void destroy(){
                     // new best solution
                     addSolution(*move);
                 }
-
+                tinker(move, infeasible);
             }
             destroy(); // move to D2 or D1 depending on above outcome
             

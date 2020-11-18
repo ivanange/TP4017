@@ -16,8 +16,10 @@ void eval();
 
 /*
 * Tinker around to find other trial solutions at critical events
+* @param Solution* feasible 
+* @param Solution* infeasible 
 */
-void tinker();
+void tinker(Solution* feasible, Solution* infeasible );
 
 /*
 * Construct new solution from current solution by inveting given variable
@@ -26,7 +28,7 @@ void tinker();
 Solution makeMove(Variable *variable);
 
 /*
-* Get a value for span
+* Get a value for span : a random number between 1 and 6 
 */
 int getSpan();
 
