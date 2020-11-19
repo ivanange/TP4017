@@ -77,6 +77,6 @@ void transfer();
 * @param int size
 * @return float
 */
-float dotProduct( int *v1, float *v2, int size);
+float scalaire( int *v1, float *v2, int size);
 
 #endif
