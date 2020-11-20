@@ -6,14 +6,19 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-/* Constrains */
+/* 
+* Representation of Constrains 
+*/
 typedef struct Constrains {
+	// matrix representing left hand side of containt equations (Aij)
     float **lhs;
+
+	// vector representing right hand side of containt equations (Bi)
     float *rhs;
 } Constrains;
 
 /*
-* Create a mxn constrain matrix
+* Create a mxn constrain lhs matrix
 * @param int n
 * @param int m
 */
@@ -24,11 +29,25 @@ Constrains *ConstrainsInit(int m, int n);
 * Abstraction of a vairable
 */
 typedef struct Variable {
+	// current value of variable ( in current solution)
 	int value;
+
+	// frequency of the variable at cuurent itération
 	int frequency;
+	
+	/* 
+	* position of the variable in the different 
+	* representations ( solution, contrains, objective function ...)
+	*/
 	int index;
+	
+	// calculated PEN_F value for the variable
 	float PEN_F;
+
+	// calculated PEN_R value for the variable
 	float PEN_R;
+
+	// optional variable name
     char name[TAILLE_MAX];
 } Variable;
 
@@ -42,7 +61,10 @@ typedef  struct Variables {
 
 
 /*
-* Abstraction of a solution
+* Abstraction of a solution : a vector of solution values
+* example : {
+*	value: (0, 0, 1, 0, 1, 1)
+* }
 */
 typedef struct Solution {
 	int *value;
@@ -53,13 +75,19 @@ typedef struct Solution {
 * Selection, represents possible moves sorted in specified order
 */
 typedef struct Selection {
+	// possible moves
 	Solution *moves;
+
+	// size of the selection
 	int size;
 } Selection;
 
 
 /*
-* Abstraction of the objective function
+* Abstraction of the objective function : a vector of objective function coeficients
+* example : {
+*	value: (3.5, 80, 12, 7, 16, 9)
+* }
 */
 typedef struct ObjectiveFunction {
     float *value;
@@ -71,8 +99,13 @@ typedef struct ObjectiveFunction {
 * Tabu list: fixed size queue
 */
 typedef struct Tabulist {
+	// position of Tabulist head
 	int size;
+
+	// max size of the list
 	int max_size;
+
+	// the list itself ( vector of solutions)
 	Solution *list;
 } Tabulist;
 
