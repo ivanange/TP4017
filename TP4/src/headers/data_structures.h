@@ -7,7 +7,7 @@
 #include <stdio.h>
 
 /* Constrains */
-typedef struct {
+typedef struct Constrains {
     float **lhs;
     float *rhs;
 } Constrains;
@@ -23,7 +23,7 @@ Constrains *ConstrainsInit(int m, int n);
 /*
 * Abstraction of a vairable
 */
-typedef struct {
+typedef struct Variable {
 	int value;
 	int frequency;
 	int index;
@@ -36,7 +36,7 @@ typedef struct {
 /*
 * Variable list
 */
-typedef struct {
+typedef  struct Variables {
 	Variable *value;
 } Variables;
 
@@ -44,7 +44,7 @@ typedef struct {
 /*
 * Abstraction of a solution
 */
-typedef struct {
+typedef struct Solution {
 	int *value;
 } Solution;
 
@@ -52,7 +52,7 @@ typedef struct {
 /*
 * Selection, represents possible moves sorted in specified order
 */
-typedef struct {
+typedef struct Selection {
 	Solution *moves;
 	int size;
 } Selection;
@@ -61,7 +61,7 @@ typedef struct {
 /*
 * Abstraction of the objective function
 */
-typedef struct {
+typedef struct ObjectiveFunction {
     float *value;
 } ObjectiveFunction;
 
@@ -70,7 +70,7 @@ typedef struct {
 /*
 * Tabu list: fixed size queue
 */
-typedef struct {
+typedef struct Tabulist {
 	int size;
 	int max_size;
 	Solution *list;

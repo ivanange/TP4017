@@ -2,6 +2,7 @@
 #include "headers/vars.h"
 
 
+
 void construct(){
     if(spanCount < span) {
 
@@ -9,7 +10,7 @@ void construct(){
         spanCount++;
 
         // get moves in descending order
-        Selection selection = select();
+        Selection selection = getSelection();
         Solution *moves = selection.moves;
         Solution *move;
         Solution *infeasible;
@@ -27,7 +28,7 @@ void construct(){
 
             if(move != NULL) {
                 // found feasible move, update current solution
-                curSolution = *move;
+                changeSolution(move);
             }
             else {
                 // no feasible move, check if current solution is a new best then go to C2
@@ -51,11 +52,12 @@ void construct(){
             }
             else {
                 // do a move, and continue construction
-                curSolution = moves[0];
+                changeSolution(moves);
                 construct();
             }
 
         }
+        free(selection.moves);
 
     }
     else {
@@ -75,7 +77,7 @@ void destroy(){
         spanCount++;
 
         // get moves in ascending order of value 
-        Selection selection = select();
+        Selection selection = getSelection();
         Solution *moves = selection.moves;
         Solution *move;
         Solution *infeasible;
@@ -87,7 +89,7 @@ void destroy(){
             infeasible = &curSolution;
 
             // do a move
-            curSolution = *(move = moves);
+            changeSolution(move = moves);
 
             // if move is feasible go to D2, else continue in D1
             if(admissible(move)) {
@@ -111,14 +113,96 @@ void destroy(){
             }
             else {
                 // do a move, and continue destruction
-                curSolution = moves[0];
+                changeSolution(moves);
                 destroy();
             }
 
         }
+        free(selection.moves);
 
     }
     else {
         transfer();
+    }
+}
+
+Solution makeMove(Variable *variable) {
+    return makeMoveFromSolution(variable, &curSolution);
+}
+
+
+Solution makeMoveFromSolution(Variable *variable, Solution *move ) {
+    move = move ? move : &curSolution;
+    Solution newMove;
+    float size = sizeof(move->value);
+    newMove.value = malloc(size);
+    memcpy(newMove.value, move->value, size);
+    newMove.value[variable->index] = newMove.value[variable->index] ? 1 : 0;
+    return newMove;
+}
+
+void tinker(Solution* feasible, Solution* infeasible ) {
+    if (constructive)
+    {
+        // in constrcutive phase
+        int size = count(curSolution.value, N, 1);
+        int *candidates = malloc(sizeof(int)*size);
+        int j = 0;
+        for (int i = 0; i < N; i++)
+        {
+            if (curSolution.value[i] == 1)
+            {
+                candidates[j] = i;
+                j++;
+            }
+        }
+
+        // sort in ascending order of objective function coeficients
+        int a, b, temp; 
+        for (a = 0; a < size-1; a++) {
+            for (b = 0; b < size-a-1; b++) {
+                if (objectiveFunction.value[b] > objectiveFunction.value[b+1]) {
+                    temp = objectiveFunction.value[b];
+                    objectiveFunction.value[b] = objectiveFunction.value[b+1];
+                    objectiveFunction.value[b+1] = temp; 
+                    }
+                }
+        }       
+    
+        for (int i = 0; i < size; i++)
+        {
+            Solution move = makeMoveFromSolution(variables+i, infeasible);
+            if(admissible(&move) && evalObjective(&move) > evalObjective(TabulistHead(tabulist))) {
+                addSolution(move);
+            }
+        }
+        
+    }
+    else {
+        // destrcutive phase
+
+    }
+    
+}
+
+int count( int *array, int size, int val) {
+    int s = 0;
+    for (int k = 0; k < size; k++)
+    {
+       if (array[k] == val)
+       {
+          s++;
+       }
+       
+    }
+    return s;
+}
+
+void changeSolution( Solution *move) {
+    free(curSolution.value);
+    curSolution = *move;
+    for (int i = 0; i < N; i++)
+    {
+        variables[i].value = curSolution.value[i];
     }
 }

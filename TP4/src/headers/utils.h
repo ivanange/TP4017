@@ -3,7 +3,7 @@
 
 #include "data_structures.h"
 #include "vars.h"
-
+#include <string.h>
 /*
 * Initialise algorithm
 */
@@ -22,10 +22,17 @@ void eval();
 void tinker(Solution* feasible, Solution* infeasible );
 
 /*
-* Construct new solution from current solution by inveting given variable
+* Construct new solution from current solution by inverting given variable
 * @param Variable* variable 
 */
 Solution makeMove(Variable *variable);
+
+/*
+* Construct new solution from a given solution by inverting given variable
+* @param Variable* variable 
+* @param Solution* move 
+*/
+Solution makeMoveFromSolution(Variable *variable, Solution *move);
 
 /*
 * Get a value for span : a random number between 1 and 6 
@@ -55,7 +62,7 @@ void addSolution(Solution solution);
 * depending on current phase ( contructive or destruvtive)
 * @return Selection 
 */
-Selection select();
+Selection getSelection();
 
 /*
 * Procedure representing construcive phase
@@ -80,5 +87,20 @@ void transfer();
 * @return float
 */
 float dotProduct( int *v1, float *v2, int size);
+
+/*
+* Count the number of occurences of a number (integer) in an array ( of integers)
+* @param int* array 
+* @param int size 
+* @param int* val value to search 
+*/
+int count( int *array, int size, int val);
+
+
+/*
+* Change currentSolution to new solution
+* @param Solution* move 
+*/
+void changeSolution( Solution *move);
 
 #endif
