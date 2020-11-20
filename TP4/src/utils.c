@@ -176,14 +176,40 @@ void tinker(Solution* feasible, Solution* infeasible ) {
                 addSolution(move);
             }
         }
-        
-    }
-    else {
-        // destrcutive phase
 
     }
+
+                else {
+        // destrcutive phase
+                }
     
 }
+        
+
+float evalObjective(Solution *move)
+{
+    return scalaire(move, &objectiveFunction.value, N);
+}
+
+
+int admissible(Solution *move)
+{
+    int result = 0, admi = true;
+
+    for (int i = 0; i < M; ++i)
+    {
+        scalaire(move, constrains.lhs+i, N);
+
+        // Une contrainte a été violé admi reçoit faux
+        if (result > constrains.rhs[i])
+        {
+            admi = false;
+            break;
+        }
+    }
+    return admi;
+}
+
 
 int count( int *array, int size, int val) {
     int s = 0;
@@ -206,3 +232,13 @@ void changeSolution( Solution *move) {
         variables[i].value = curSolution.value[i];
     }
 }
+
+float scalaire( int *v1, float *v2, int size) {
+    int j,result = 0;
+    for (int j = 0; j < size; ++j)
+    {
+        result = result + v1[j] * v2[j];
+    }
+    return result;
+}
+

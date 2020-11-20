@@ -86,7 +86,7 @@ void transfer();
 * @param int size
 * @return float
 */
-float dotProduct( int *v1, float *v2, int size);
+float scalaire( int *v1, float *v2, int size);
 
 /*
 * Count the number of occurences of a number (integer) in an array ( of integers)
