@@ -142,47 +142,110 @@ Solution makeMoveFromSolution(Variable *variable, Solution *move ) {
 }
 
 void tinker(Solution* feasible, Solution* infeasible ) {
+
+    int a, b, temp, i, j, size, *candidates; 
+    Solution *lastBest = TabulistHead(tabulist);
+
     if (constructive)
     {
         // in constrcutive phase
-        int size = count(curSolution.value, N, 1);
-        int *candidates = malloc(sizeof(int)*size);
-        int j = 0;
-        for (int i = 0; i < N; i++)
-        {
-            if (curSolution.value[i] == 1)
-            {
-                candidates[j] = i;
-                j++;
-            }
-        }
 
-        // sort in ascending order of objective function coeficients
-        int a, b, temp; 
-        for (a = 0; a < size-1; a++) {
-            for (b = 0; b < size-a-1; b++) {
-                if (objectiveFunction.value[b] > objectiveFunction.value[b+1]) {
-                    temp = objectiveFunction.value[b];
-                    objectiveFunction.value[b] = objectiveFunction.value[b+1];
-                    objectiveFunction.value[b+1] = temp; 
-                    }
-                }
-        }       
-    
-        for (int i = 0; i < size; i++)
-        {
-            Solution move = makeMoveFromSolution(variables+i, infeasible);
-            if(admissible(&move) && evalObjective(&move) > evalObjective(TabulistHead(tabulist))) {
-                addSolution(move);
-            }
-        }
+        //tinkering with infeasible solution
+        tinkerInfeasible(infeasible);
 
     }
 
-                else {
+    else {
         // destrcutive phase
-                }
+
+        //tinkering with infeasible solution
+        tinkerFeasible(feasible);
+
+        //tinkering with feasible solution
+        tinkerInfeasible(infeasible);
+        
+    }
     
+}
+
+void tinkerFeasible(Solution* feasible) {
+
+    int a, b, temp, i, j, size, *candidates; 
+    Solution *lastBest = TabulistHead(tabulist);
+
+    size = count(curSolution.value, N, 0);
+    candidates = malloc(sizeof(int)*size);
+    j = 0;
+    for (i = 0; i < N; i++)
+    {
+        if (curSolution.value[i] == 0)
+        {
+            candidates[j] = i;
+            j++;
+        }
+    }
+
+    // sort in descending order of objective function coeficients
+    for (a = 0; a < size-1; a++) {
+        for (b = 0; b < size-a-1; b++) {
+            if (objectiveFunction.value[b] < objectiveFunction.value[b+1]) {
+                temp = objectiveFunction.value[b];
+                objectiveFunction.value[b] = objectiveFunction.value[b+1];
+                objectiveFunction.value[b+1] = temp; 
+            }
+        }
+    }       
+
+    for (i = 0; i < size; i++)
+    {
+        Solution move = makeMoveFromSolution(variables+i, feasible);
+        if(admissible(&move) && evalObjective(&move) > evalObjective(lastBest)) {
+            addSolution(move);
+        }
+    }
+
+    free(candidates);
+}
+
+
+void tinkerInfeasible(Solution* infeasible ) {
+
+    int a, b, temp, i, j, size, *candidates; 
+    Solution *lastBest = TabulistHead(tabulist);
+
+    size = count(curSolution.value, N, 1);
+    candidates = malloc(sizeof(int)*size);
+    j = 0;
+    for (i = 0; i < N; i++)
+    {
+        if (curSolution.value[i] == 1)
+        {
+            candidates[j] = i;
+            j++;
+        }
+    }
+
+    // sort in ascending order of objective function coeficients
+    for (a = 0; a < size-1; a++) {
+        for (b = 0; b < size-a-1; b++) {
+            if (objectiveFunction.value[b] > objectiveFunction.value[b+1]) {
+                temp = objectiveFunction.value[b];
+                objectiveFunction.value[b] = objectiveFunction.value[b+1];
+                objectiveFunction.value[b+1] = temp; 
+                }
+            }
+    }       
+
+    for (i = 0; i < size; i++)
+    {
+        Solution move = makeMoveFromSolution(variables+i, infeasible);
+        if(admissible(&move) && evalObjective(&move) > evalObjective(lastBest)) {
+            addSolution(move);
+        }
+    }
+
+    free(candidates);
+
 }
         
 

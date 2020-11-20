@@ -99,7 +99,7 @@ typedef struct ObjectiveFunction {
 * Tabu list: fixed size queue
 */
 typedef struct Tabulist {
-	// position of Tabulist head
+	/* // position of Tabulist head */
 	int size;
 
 	// max size of the list

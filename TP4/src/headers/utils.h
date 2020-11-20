@@ -22,6 +22,18 @@ void eval();
 void tinker(Solution* feasible, Solution* infeasible );
 
 /*
+* Tinker around to find other trial solutions from feasible solution
+* @param Solution* feasible 
+*/
+void tinkerFeasible(Solution* feasible);
+
+/*
+* Tinker around to find other trial solutions from infeasible solution
+* @param Solution* infeasible 
+*/
+void tinkerInfeasible(Solution* infeasible );
+
+/*
 * Construct new solution from current solution by inverting given variable
 * @param Variable* variable 
 */
