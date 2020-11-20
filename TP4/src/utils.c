@@ -122,3 +122,61 @@ void destroy(){
         transfer();
     }
 }
+
+
+
+
+// Je comprend pas pour quoi t'as defini le type se Solution comme tu l'as fait là
+
+
+float evalObjective(Solution *move)
+{
+    //nombres fixe de variables
+        n = N
+
+        result = 0
+        
+        // c le tableau de coefficient de la fonction objectif (apparement tu l'as oublié) 
+        // int c[n] = {1,2,3,5.......,}
+
+        for (int i = 0; i < n; ++i)
+        {
+            result = result + c[i]* (*(move+i));
+        }
+
+        return result
+}
+
+
+int admissible(Solution *move)
+{
+
+
+    int admi = 1;
+    while(admi)
+    {
+
+        int result = 0;
+        // M nombres de contraintes
+        // N nombres d'element dans un tableau de contrainte (nombres de variables)
+        // creer la matrice de contrainte NxM (contrains)
+        // b est le vecteur d'inegalité sur les contraintes (apparement tu l'as oublié)
+        for (int i = 0; i < m; ++i)
+        {
+            for (int j = 0; i < n; ++i)
+            {
+                result = result + (*(constrains->lhs[i]) + j) * (*(move+j));
+            }
+
+            // Une contrainte a été violé admi reçoit 0
+            if (result > b[i])
+            {
+                admi = 0;
+            }
+        }
+        
+    }
+
+    return admi;
+
+}
