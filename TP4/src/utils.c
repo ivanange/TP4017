@@ -140,10 +140,21 @@ Solution makeMoveFromSolution(Variable *variable, Solution *move ) {
 }
 
 Selection getSelection() {
-    static int *B;
-    static int *W;
-    if(!B) B = malloc(sizeof(int)*M);
-    if(!W) W = malloc(sizeof(int)*M);
+    static int *B, *W, *S, i;
+
+    if(!B) {
+        B = malloc(sizeof(int)*M);
+        W = malloc(sizeof(int)*M);
+        S = malloc(sizeof(int)*N);
+    }
+
+
+    // calculating B(i)
+    for (i = 0; i < M; i++)
+    {
+        B[i]
+    }
+    
 
     if(constructive) {
 
