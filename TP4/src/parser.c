@@ -8,19 +8,19 @@
 void parseFile(FILE *file) {
 
 	int valO;
-	FILE* fichier = NULL;
+	// FILE* fichier = NULL;
 	char line[1024];
-	fichier = fopen("../data/mknap1.txt", "r");
+	// fichier = fopen("../data/mknap1.txt", "r");
 	const char* tok;
 
 	if (fichier != NULL)
 	{
 		// juste la premiere ligne: nombres de variables, contrainte, et valeur objective 
-		fscanf(fichier, "%d %d %d", N, M, valO); fgetc(fichier);
+		fscanf(file, "%d %d %d", N, M, valO); fgetc(file);
 
 
 		// La seconde ligne : les coefficients
-		fgets(line, 1024, fichier);
+		fgets(line, 1024, file);
 		token = strtok(line, s);
 		k = 0
 
@@ -37,7 +37,7 @@ void parseFile(FILE *file) {
 
         for (int j = 0; j < M; ++j)
         {
-        	fgets(line, 1024, stream);
+        	fgets(line, 1024, file);
 
         	token = strtok(line, s);
         	float *inter;
@@ -56,7 +56,7 @@ void parseFile(FILE *file) {
 
         // la derniere ligne pour les M contraintes coté droit
 
-        fgets(line, 1024, stream);
+        fgets(line, 1024, file);
 		token = strtok(line, s);
 		int b = 0
 
