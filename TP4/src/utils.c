@@ -2,7 +2,6 @@
 #include "headers/vars.h"
 
 
-
 void construct(){
     if(spanCount < span) {
 
@@ -130,7 +129,6 @@ Solution makeMove(Variable *variable) {
     return makeMoveFromSolution(variable, &curSolution);
 }
 
-
 Solution makeMoveFromSolution(Variable *variable, Solution *move ) {
     move = move ? move : &curSolution;
     Solution newMove;
@@ -141,10 +139,23 @@ Solution makeMoveFromSolution(Variable *variable, Solution *move ) {
     return newMove;
 }
 
-void tinker(Solution* feasible, Solution* infeasible ) {
+Selection getSelection() {
+    static int *B;
+    static int *W;
+    if(!B) B = malloc(sizeof(int)*M);
+    if(!W) W = malloc(sizeof(int)*M);
 
-    int a, b, temp, i, j, size, *candidates; 
-    Solution *lastBest = TabulistHead(tabulist);
+    if(constructive) {
+
+    }
+    else
+    {
+         
+    }
+    
+}
+
+void tinker(Solution* feasible, Solution* infeasible ) {
 
     if (constructive)
     {
@@ -207,7 +218,6 @@ void tinkerFeasible(Solution* feasible) {
     free(candidates);
 }
 
-
 void tinkerInfeasible(Solution* infeasible ) {
 
     int a, b, temp, i, j, size, *candidates; 
@@ -247,13 +257,11 @@ void tinkerInfeasible(Solution* infeasible ) {
     free(candidates);
 
 }
-        
 
 float evalObjective(Solution *move)
 {
-    return scalaire(move, &objectiveFunction.value, N);
+    return scalaire(move->value, objectiveFunction.value, N);
 }
-
 
 int admissible(Solution *move)
 {
@@ -261,7 +269,7 @@ int admissible(Solution *move)
 
     for (int i = 0; i < M; ++i)
     {
-        scalaire(move, constrains.lhs+i, N);
+        scalaire(move->value, constrains.lhs[i], N);
 
         // Une contrainte a été violé admi reçoit faux
         if (result > constrains.rhs[i])
@@ -272,7 +280,6 @@ int admissible(Solution *move)
     }
     return admi;
 }
-
 
 int count( int *array, int size, int val) {
     int s = 0;
@@ -298,7 +305,7 @@ void changeSolution( Solution *move) {
 
 float scalaire( int *v1, float *v2, int size) {
     int j,result = 0;
-    for (int j = 0; j < size; ++j)
+    for (j = 0; j < size; ++j)
     {
         result = result + v1[j] * v2[j];
     }
