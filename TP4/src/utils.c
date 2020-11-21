@@ -280,7 +280,7 @@ int admissible(Solution *move)
 
     for (int i = 0; i < M; ++i)
     {
-        scalaire(move->value, constrains.lhs[i], N);
+        result = scalaire(move->value, constrains.lhs[i], N);
 
         // Une contrainte a été violé admi reçoit faux
         if (result > constrains.rhs[i])
