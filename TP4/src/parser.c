@@ -7,27 +7,34 @@
 */
 void parseFile(FILE *file) {
 
-	int valO;
+	int valO, k, j;
 	// FILE* fichier = NULL;
 	char line[1024];
 	// fichier = fopen("../data/mknap1.txt", "r");
-	const char* tok;
+	const char s[2] = " ";
+	const char* token;
 
-	if (fichier != NULL)
+	if (file != NULL)
 	{
 		// juste la premiere ligne: nombres de variables, contrainte, et valeur objective 
-		fscanf(file, "%d %d %d", N, M, valO); fgetc(file);
+		fscanf(file, "%d %d %d", &N, &M, &valO); fgetc(file);
+		// ceci c'est bon
+		printf("\n%d", N);
 
 
 		// La seconde ligne : les coefficients
 		fgets(line, 1024, file);
 		token = strtok(line, s);
-		k = 0
+		int *m;
 
    		/* walk through other tokens */
         while( token != NULL ) {
 	        int  i = atoi(token);
-	        *(objectiveFunction.value + k) = i;
+	        // tous ceci marche mais je trouve ça bisard je comprend pas pour quoi sa marche
+	        m = &objectiveFunction.value  ;
+	        *(m+k) = i;
+	         m = objectiveFunction.value;
+	        printf("\n%d\n", *(&objectiveFunction+k));
 
 	        token = strtok(NULL, s);
 	        k = k + 1;
@@ -45,8 +52,9 @@ void parseFile(FILE *file) {
 
         	while( token != NULL ) {
 		        int  i = atoi(token);
-		        inter = constrains.lhs[j]
-		        inter[n] = i;
+		        // mon code block refuse ceci sa fait planter la machine pourtant sa devrait marcher
+		        constrains.lhs[j][n] = i
+		        
 
 		        token = strtok(NULL, s);
 		        n = n + 1;
