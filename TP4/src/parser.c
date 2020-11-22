@@ -30,11 +30,16 @@ void parseFile(FILE *file) {
    		/* walk through other tokens */
         while( token != NULL ) {
 	        int  i = atoi(token);
-	        // tous ceci marche mais je trouve ça bisard je comprend pas pour quoi sa marche
-	        m = &objectiveFunction.value  ;
-	        *(m+k) = i;
-	         m = objectiveFunction.value;
-	        printf("\n%d\n", *(&objectiveFunction+k));
+	        /* walk through other tokens */
+        while( token != NULL ) {
+	        int  i = atoi(token);
+	        // je sais pas pourquoi la ligne si ne marche pas 
+	        *(objectiveFunction.value + k) = i ;
+	         //m = objectiveFunction.value;
+	        //printf("\n%d\n", *(&objectiveFunction+k));
+
+	        token = strtok(NULL, s);
+	        k = k + 1;
 
 	        token = strtok(NULL, s);
 	        k = k + 1;
