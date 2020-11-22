@@ -483,11 +483,11 @@ int getSpan()
 {
 
     int i, n;
-    time_t t;
+    time_t T;
 
 
    /* Intializes random number generator */
-   srand((unsigned) time(&t));
+   srand((unsigned) time(&T));
 
    /* Print 1 random numbers from 0 to 5 */
     n = (rand() % 5) + 1;
