@@ -1,6 +1,7 @@
+#include <time.h>
+#include <string.h>
 #include "headers/utils.h"
 #include "headers/vars.h"
-#include <string.h>
 
 
 void construct(){
@@ -482,7 +483,7 @@ void parseFile(FILE *file) {
 int getSpan()
 {
 
-    int i, n;
+    int n;
     time_t T;
 
 
