@@ -1,56 +1,7 @@
-#include <string.h>
-#include <math.h>
 #include "headers/utils.h"
 #include "headers/vars.h"
+#include <string.h>
 
-
-
-void init(FILE *file) {
-
-    int i, j;
-
-    parseFile(file);
-
-    // create initial solution
-    curSolution.value = malloc(sizeof(int)*N);
-    variables = malloc(sizeof(Variable)*N);
-    for(i=0; i<N; i++) {
-        Variable variable;
-        variable.frequency = 0;
-        variable.recency = 0;
-        variable.value = 0;
-        variable.index = i;
-        variable.name = malloc(sizeof(char)*(ceil(log10(i))+1));
-        sprintf(variable.name+1, "%d", i);
-        variable.name[0] = 'X';
-
-        variables[i] = variable;
-
-        curSolution.value[i] = 0;
-    }
-
-    // create tabu list
-    tabulist = TabulistInit(TabuTenure);
-
-
-    // calculate PEN_R and PEN_F
-    PEN_R = 0;
-
-    for (j = 0; j < N; j++)
-    {
-        float sum = 0;
-        for (i = 0; i < M; i++)
-        {
-            sum += constrains.lhs[i][j] / constrains.rhs[i];
-        }
-
-        PEN_R = PEN_R < sum ? sum : PEN_R;
-        
-    }
-     
-
-    PEN_F = PEN_R/C;
-}
 
 void construct(){
     if(spanCount < span) {
@@ -476,7 +427,6 @@ void parseFile(FILE *file) {
 
 		// La seconde ligne : les coefficients
 
-        objectiveFunction.value = malloc(sizeof(float)*N);
 		fgets(line, 1024, file);
 		token = strtok(line, s);
 		k = 0;
@@ -489,9 +439,6 @@ void parseFile(FILE *file) {
 	        k = k + 1;
         }
 
-
-        // create contains matrix
-        constrains = *ConstrainsInit(M,N);
 
         // les M lignes suivantes pour les contraintes
 
@@ -532,3 +479,18 @@ void parseFile(FILE *file) {
 
 }
 
+int getSpan()
+{
+
+    int i, n;
+    time_t t;
+
+
+   /* Intializes random number generator */
+   srand((unsigned) time(&t));
+
+   /* Print 1 random numbers from 0 to 5 */
+    n = (rand() % 5) + 1;
+
+    return n ;
+}
