@@ -45,7 +45,7 @@ typedef struct Variable {
 	int index;
 
 	// optional variable name
-    char name[TAILLE_MAX];
+    char *name;
 } Variable;
 
 

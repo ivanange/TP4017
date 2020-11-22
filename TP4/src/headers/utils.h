@@ -6,7 +6,7 @@
 /*
 * Initialise algorithm
 */
-void init();
+void init(FILE *file);
 
 /*
 * Evaluates the S(j)s

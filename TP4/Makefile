@@ -14,14 +14,14 @@ $(OBJ)/data_structures.o: $(SRC)/data_structures.c
 	$(CC) $(CFLAGS) $(SRC)/data_structures.c  -o $(OBJ)/data_structures.o
 
 $(OBJ)/utils.o: $(SRC)/utils.c $(HEADERS)
-	$(CC) $(CFLAGS) $(SRC)/utils.c  -o $(OBJ)/utils.o
+	$(CC) $(CFLAGS)  $(SRC)/utils.c  -o $(OBJ)/utils.o
 
 $(OBJ)/main.o: $(SRC)/main.c $(HEADERS)
 	$(CC) $(CFLAGS) $(SRC)/main.c  -o $(OBJ)/main.o
 
 
 app: ${OBJECTS} 
-	$(CC) -o $(BIN)/app ${OBJECTS}
+	$(CC) -lm -o $(BIN)/app ${OBJECTS}
 
 clean: 
 	rm -rf $(OBJ)/*.o

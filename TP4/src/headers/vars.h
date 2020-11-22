@@ -78,7 +78,7 @@ const int KMAX = 4;
 * @var int 
 * Length of Tabu List
 */
-const int TabuTenure;
+const int TabuTenure = 3;
 
 
 /*

@@ -30,7 +30,7 @@ int main(int argc, char **argv)
     FILE *file = fopen(path, "r");
 
     if(file) {
-        init();
+        init(file);
 
         while(curIter < maxIter) {
 
