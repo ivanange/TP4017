@@ -64,7 +64,7 @@ int spanCount;
 * @var int 
 * Var for managing frequency scaling
 */
-int K;
+int K = 1;
 
 
 /*
@@ -79,6 +79,18 @@ const int KMAX = 4;
 * Length of Tabu List
 */
 const int TabuTenure;
+
+
+/*
+* calculated PEN_F value
+*/
+float PEN_F;
+
+
+/*
+* calculated PEN_R value
+*/
+float PEN_R;
 
 
 /*

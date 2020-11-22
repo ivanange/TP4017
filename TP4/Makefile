@@ -5,16 +5,13 @@ HSRC = $(SRC)/headers
 LIB = lib
 OBJ = obj
 BIN = bin
-OBJECTS= $(OBJ)/data_structures.o $(OBJ)/parser.o $(OBJ)/utils.o
-HEADERS= $(HSRC)/data_structures.h $(HSRC)/parser.h $(HSRC)/utils.h $(HSRC)/vars.h
+OBJECTS= $(OBJ)/data_structures.o $(OBJ)/utils.o $(OBJ)/main.o
+HEADERS= $(HSRC)/data_structures.h $(HSRC)/main.h $(HSRC)/utils.h $(HSRC)/vars.h
 
 do : app
 
 $(OBJ)/data_structures.o: $(SRC)/data_structures.c
 	$(CC) $(CFLAGS) $(SRC)/data_structures.c  -o $(OBJ)/data_structures.o
-
-$(OBJ)/parser.o: $(SRC)/parser.c
-	$(CC) $(CFLAGS) $(SRC)/parser.c  -o $(OBJ)/parser.o
 
 $(OBJ)/utils.o: $(SRC)/utils.c $(HEADERS)
 	$(CC) $(CFLAGS) $(SRC)/utils.c  -o $(OBJ)/utils.o

@@ -2,8 +2,7 @@
 #define utils
 
 #include "data_structures.h"
-#include "vars.h"
-#include <string.h>
+
 /*
 * Initialise algorithm
 */
@@ -114,5 +113,11 @@ int count( int *array, int size, int val);
 * @param Solution* move 
 */
 void changeSolution( Solution *move);
+
+/*
+* Parse MKP problem instance from file
+* @param FILE file
+*/
+void parseFile(FILE *file);
 
 #endif

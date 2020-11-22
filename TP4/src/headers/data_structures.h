@@ -34,18 +34,15 @@ typedef struct Variable {
 
 	// frequency of the variable at cuurent itération
 	int frequency;
+
+	// recency of the variable at cuurent itération
+	int recency;
 	
 	/* 
 	* position of the variable in the different 
 	* representations ( solution, contrains, objective function ...)
 	*/
 	int index;
-	
-	// calculated PEN_F value for the variable
-	float PEN_F;
-
-	// calculated PEN_R value for the variable
-	float PEN_R;
 
 	// optional variable name
     char name[TAILLE_MAX];

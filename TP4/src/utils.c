@@ -1,5 +1,6 @@
 #include "headers/utils.h"
 #include "headers/vars.h"
+#include <string.h>
 
 
 void construct(){
@@ -67,6 +68,10 @@ void construct(){
 void transfer() {
     spanCount = 0;
     constructive = constructive ? false : true;
+
+    if(N > 6) {
+        span = getSpan();
+    }
 }
 
 void destroy(){
@@ -139,30 +144,110 @@ Solution makeMoveFromSolution(Variable *variable, Solution *move ) {
     return newMove;
 }
 
-Selection getSelection() {
-    static int *B, *W, *S, i;
+void addSolution(Solution solution) {
 
-    if(!B) {
-        B = malloc(sizeof(int)*M);
-        W = malloc(sizeof(int)*M);
-        S = malloc(sizeof(int)*N);
+    static int indicator = 0, i;
+
+    indicator++;
+
+    // decrease recency of concerned variables when removing last TT+1 solution
+    if(indicator > tabulist->max_size ) {
+        indicator = 0;
+        Solution last = tabulist->list[tabulist->size];
+        for(i = 0; i < N; i++) {
+          if(last.value[i] == 1) variables[i].recency--;  
+        }
     }
 
+    // add new solution to list
+    TabulistPush(tabulist, solution);
 
-    // calculating B(i)
-    for (i = 0; i < M; i++)
+    // update frequency and recency of corresponding variables
+    for(i = 0; i < N; i++) {
+        if(solution.value[i] == 1) {
+            variables[i].frequency++;
+            variables[i].recency++;
+        }  
+    }
+}
+
+Selection getSelection() {
+    
+    Selection selection;
+    Solution temp;
+    int size, i, j, k, test, *candidates;
+    float B, *value;
+
+    test = constructive ? 0 : 1;
+    size = count(curSolution.value, N, test);
+    selection.size = size;
+    selection.moves = malloc(sizeof(Solution)*size);
+    candidates = malloc(sizeof(int)*size);
+    value = malloc(sizeof(float)*size);
+
+    j = 0;
+    for (i = 0; i < N; i++)
     {
-        B[i]
+        if (curSolution.value[i] == test)
+        {
+            candidates[j] = i;
+            j++;
+        }
+    }
+
+    // constrains
+    for (j = 0; j < size; j++) {
+
+        k = candidates[j]; // index of the given variable
+        selection.moves[j] = makeMove(variables+k);
+        value[j] = 0;
+
+        // calculating W(i) && S(j)
+        for(i = 0; i < M; i++)
+        {
+            B = ( B = constrains.rhs[i] - scalaire(selection.moves[j].value, constrains.lhs[i], N)) > 0 ? 1/B : abs(B) + 2;
+
+            value[j] += B*constrains.lhs[i][k]; // S(j) = S(j) + W(i) * A(i,j)
+        }
+
+        value[j] = objectiveFunction.value[j]/value[j]; // C(j)/S(j)
+
+        if(spanCount <= K) {
+            value[j] -= (PEN_R * variables[k].recency) + (PEN_F * variables[k].frequency); 
+        }
     }
     
 
     if(constructive) {
-
+        // sort in descending order of value
+        for (i = 0; i < size-1; i++) {
+            for (j = 0; j < size-i-1; j++) {
+                if (value[j] < value[j+1]) {
+                    temp = selection.moves[j];
+                    selection.moves[j] = selection.moves[j+1] ;
+                    selection.moves[j+1] = temp; 
+                }
+            }
+        } 
     }
     else
     {
-         
+        // sort in ascending order of value
+        for (i = 0; i < size-1; i++) {
+            for (j = 0; j < size-i-1; j++) {
+                if (value[j] > value[j+1]) {
+                    temp = selection.moves[j];
+                    selection.moves[j] = selection.moves[j+1] ;
+                    selection.moves[j+1] = temp; 
+                }
+            }
+        } 
     }
+
+    free(candidates);
+    free(value);
+
+    return selection;
     
 }
 
@@ -210,17 +295,18 @@ void tinkerFeasible(Solution* feasible) {
     // sort in descending order of objective function coeficients
     for (a = 0; a < size-1; a++) {
         for (b = 0; b < size-a-1; b++) {
-            if (objectiveFunction.value[b] < objectiveFunction.value[b+1]) {
-                temp = objectiveFunction.value[b];
-                objectiveFunction.value[b] = objectiveFunction.value[b+1];
-                objectiveFunction.value[b+1] = temp; 
+            if (objectiveFunction.value[candidates[b]] < objectiveFunction.value[candidates[b+1]]) {
+                temp = candidates[b];
+                candidates[b] = candidates[b+1];
+                candidates[b+1] = temp; 
+                }
             }
-        }
     }       
 
     for (i = 0; i < size; i++)
     {
-        Solution move = makeMoveFromSolution(variables+i, feasible);
+        j = candidates[i];
+        Solution move = makeMoveFromSolution(variables+j, feasible);
         if(admissible(&move) && evalObjective(&move) > evalObjective(lastBest)) {
             addSolution(move);
         }
@@ -249,17 +335,18 @@ void tinkerInfeasible(Solution* infeasible ) {
     // sort in ascending order of objective function coeficients
     for (a = 0; a < size-1; a++) {
         for (b = 0; b < size-a-1; b++) {
-            if (objectiveFunction.value[b] > objectiveFunction.value[b+1]) {
-                temp = objectiveFunction.value[b];
-                objectiveFunction.value[b] = objectiveFunction.value[b+1];
-                objectiveFunction.value[b+1] = temp; 
+            if (objectiveFunction.value[candidates[b]] > objectiveFunction.value[candidates[b+1]]) {
+                temp = candidates[b];
+                candidates[b] = candidates[b+1];
+                candidates[b+1] = temp; 
                 }
             }
     }       
 
     for (i = 0; i < size; i++)
     {
-        Solution move = makeMoveFromSolution(variables+i, infeasible);
+        j = candidates[i];
+        Solution move = makeMoveFromSolution(variables+j, infeasible);
         if(admissible(&move) && evalObjective(&move) > evalObjective(lastBest)) {
             addSolution(move);
         }
@@ -321,5 +408,74 @@ float scalaire( int *v1, float *v2, int size) {
         result = result + v1[j] * v2[j];
     }
     return result;
+}
+
+
+void parseFile(FILE *file) {
+
+	int optimum, k, i, j;
+	char line[1024];
+	const char s[2] = " ";
+	char* token;
+
+	if (file != NULL)
+	{
+		// juste la premiere ligne: nombres de variables, contrainte, et valeur objective 
+		fscanf(file, "%d %d %d", &N, &M, &optimum); 
+		fgetc(file); // go to line
+
+
+		// La seconde ligne : les coefficients
+
+		fgets(line, 1024, file);
+		token = strtok(line, s);
+		k = 0;
+
+   		/* walk through other tokens */
+        while( token != NULL ) {
+	        i = atoi(token);
+	        *(objectiveFunction.value + k) = i;
+	        token = strtok(NULL, s);
+	        k = k + 1;
+        }
+
+
+        // les M lignes suivantes pour les contraintes
+
+        for (j = 0; j < M; ++j)
+        {
+        	fgets(line, 1024, file);
+
+        	token = strtok(line, s);
+        	float *inter;
+        	k = 0;
+
+			inter = constrains.lhs[j];
+        	while( token != NULL ) {
+		        i = atoi(token);
+		        inter[k] = i;
+		        token = strtok(NULL, s);
+				k = k + 1;
+			}
+        	
+        }
+
+
+        // la derniere ligne pour les M contraintes coté droit
+
+        fgets(line, 1024, file);
+		token = strtok(line, s);
+		k = 0;
+
+   		/* walk through other tokens */
+        while( token != NULL ) {
+	        i = atoi(token);
+	        constrains.rhs[k] = i;
+	        token = strtok(NULL, s);
+	        k = k + 1;
+        }
+
+	}
+
 }
 
