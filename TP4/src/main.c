@@ -8,16 +8,21 @@
 int main(int argc, char **argv)
 {
     char *path = "data/mknap1.txt";
+    char *outpath = NULL;
     int opt;
+    double optimumValue;
 
-    while((opt = getopt(argc, argv, ":sf:")) != -1)  
+    while((opt = getopt(argc, argv, ":af:s:")) != -1)  
     {  
         switch(opt)  
         {  
 
             case 'f':  
                 path = optarg;
-                break;  
+                break;
+            case 's':  
+                outpath = optarg;
+                break;    
             case ':':  
                 printf("option needs a value\n");  
                 break;  
@@ -31,9 +36,9 @@ int main(int argc, char **argv)
 
     if(file) {
         init(file);
+        fclose(file);
 
         while(curIter < maxIter) {
-            printf("%d\n", curIter);
 
             if(curIter%(2*TabuTenure) == 0) {
                 K = K == KMAX ? 1 : K+1;
@@ -54,16 +59,38 @@ int main(int argc, char **argv)
 
         // print optimal solution
         Solution *optimum = TabulistHead(tabulist);
-        for (int i = 0; i < N; i++)
+        optimumValue = scalaire(optimum->value, objectiveFunction.value, N);
+        printf("optimal solution: (%d", optimum->value[0]);
+        for (int i = 1; i < N; i++)
         {
-            printf("  %s: %d", variables[i].name, optimum->value[i]);
+            printf(" %d", optimum->value[i]);
         }
-        printf("\n");
-        printf("optimum value: %lf\n", scalaire(optimum->value, objectiveFunction.value, N));
+        printf(")\n");
+        printf("optimal value: %lf\n", optimumValue);
+
+        if(outpath != NULL) {
+            file = fopen(outpath, "a+");
+            if(file) {
+                fprintf(file, "%d", optimum->value[0]);
+                for (int i = 1; i < N; i++)
+                {
+                    fprintf(file, " %d", optimum->value[i]);
+                }
+                fprintf(file, "\n");
+                fprintf(file, "%lf\n", optimumValue);
+                fclose(file);
+
+            }
+            else
+            {
+                 printf("Could not open output file");
+            }
+            
+        }
         
     }
     else {
-        // error
+        printf("Could not open file with MKP instance");
     }
     
 }

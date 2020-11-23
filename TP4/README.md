@@ -1,8 +1,16 @@
 # TP4017
 
+## Compilation
+
+La compilation se résume en une cmmande ```make run``` vous pouvez taper aussi ```make run``` pour compiler et lancer avec le fichier par défaut(```data/mknap1.txt```)
+
 ## Execution
 
-Pour lancer un algorithme vous pouvez passer par le Makefile en tapant: ```make run-{algo}``` ou algo est un des algorithmes implémenter ( kruskal, prim, djikstra) l'exécuter direcetement ```./bin/{algo}.exe -f nom_du_fichier_graphe``` si on ne passe pas de fichier ( pas de -f ) il utilise graph1.txt par défaut,les fichiers réfrencer doivent etre dans le dossier graphs
+LE programme est exécuter avec la commande ```./bin/app -f nom_du_fichier_contenant_l'instance -s nom_du_fichier_de sortie``` les paramètres ```s``` et ```f``` sont optionelles et le programme viens avec plusieurs instances en ordre de difficultés ( mknap1.txt ... mknap7.txt) dans le dossier data.
+
+## Paramètres
+
+Les hyper paramètres sont stocké dans le fichier ```src/headers/vars.h``` et sont généralement déclarer comme des contantes(```const```).
 
 ## Membres
 
