@@ -93,7 +93,7 @@ void construct(){
                     changeSolution(curSolution);
                 }
                 feasible = false;
-                // tinker(&curSolution, infeasible);
+                tinker(curSolution, infeasible);
             }
             freeSelection(&selection);
             construct();

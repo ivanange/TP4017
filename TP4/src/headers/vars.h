@@ -29,7 +29,7 @@ int curIter = 0;
 * @var int 
 * constant representing maximum number of iterations
 */
-const int maxIter = 60000;
+const int maxIter = 100000;
 
 
 /*
@@ -78,7 +78,7 @@ const int KMAX = 4;
 * @var int 
 * Length of Tabu List
 */
-const int TabuTenure = 3;
+const int TabuTenure = 10;
 
 
 /*
