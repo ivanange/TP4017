@@ -7,10 +7,10 @@
 
 int main(int argc, char **argv)
 {
-    char *path = "graph1.txt";
+    char *path = "data/mknap1.txt";
     int opt;
 
-        while((opt = getopt(argc, argv, ":sf:")) != -1)  
+    while((opt = getopt(argc, argv, ":sf:")) != -1)  
     {  
         switch(opt)  
         {  
@@ -31,8 +31,12 @@ int main(int argc, char **argv)
 
     if(file) {
         init(file);
+        // getSelection();
+        // curSolution = makeMove(variables);
+        // getSelection();
 
         while(curIter < maxIter) {
+            printf("%d\n", curIter);
 
             if(curIter%(2*TabuTenure) == 0) {
                 K = K == KMAX ? 1 : K+1;
@@ -48,9 +52,18 @@ int main(int argc, char **argv)
             }
 
             curIter++;
+
         }
 
         // print optimal solution
+        Solution *optimum = TabulistHead(tabulist);
+        for (int i = 0; i < N; i++)
+        {
+            printf("  %s: %d", variables[i].name, optimum->value[i]);
+        }
+        printf("\n");
+        printf("optimum value: %lf\n", scalaire(optimum->value, objectiveFunction.value, N));
+        
     }
     else {
         // error

@@ -11,3 +11,15 @@ extern const int KMAX;
 extern int span; 
 
 extern int constructive;
+
+extern Tabulist *tabulist;
+
+extern Variable *variables;
+
+extern ObjectiveFunction objectiveFunction;
+
+extern int N; 
+
+extern Solution curSolution;
+
+

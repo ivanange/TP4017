@@ -9,11 +9,6 @@
 void init(FILE *file);
 
 /*
-* Evaluates the S(j)s
-*/
-void eval();
-
-/*
 * Tinker around to find other trial solutions at critical events
 * @param Solution* feasible 
 * @param Solution* infeasible 
@@ -60,7 +55,7 @@ int admissible(Solution *move);
 * Evaluate specified solution
 * @param Solution* move 
 */
-float evalObjective(Solution *move);
+double evalObjective(Solution *move);
 
 /*
 * Add solution to Tabu list and update variables accordingly
@@ -91,13 +86,13 @@ void destroy();
 void transfer();
 
 /*
-* Performs dot product of 2 vectors, one made of INTs the other of FLOATs
+* Performs dot product of 2 vectors, one made of INTs the other of DOUBLEs
 * @param int* v1
 * @param int* v2
 * @param int size
-* @return float
+* @return double
 */
-float scalaire( int *v1, float *v2, int size);
+double scalaire( int *v1, double *v2, int size);
 
 /*
 * Count the number of occurences of a number (integer) in an array ( of integers)

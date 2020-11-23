@@ -12,10 +12,10 @@
 /* Global variables */
 
 /*
-* @var float 
+* @var double 
 * constant used in calculating penalty
 */
-const float C = 100000;
+const double C = 100000;
 
 
 /*
@@ -29,7 +29,7 @@ int curIter = 0;
 * @var int 
 * constant representing maximum number of iterations
 */
-const int maxIter = 100000;
+const int maxIter = 150;
 
 
 /*
@@ -84,13 +84,13 @@ const int TabuTenure = 3;
 /*
 * calculated PEN_F value
 */
-float PEN_F;
+double PEN_F;
 
 
 /*
 * calculated PEN_R value
 */
-float PEN_R;
+double PEN_R;
 
 
 /*
@@ -103,7 +103,7 @@ Solution curSolution;
 * @var Constrain 
 * Contrains of the problem
 */
-Constrains constrains;
+Constrains *constrains;
 
 
 /*

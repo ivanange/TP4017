@@ -10,11 +10,11 @@
 * Representation of Constrains 
 */
 typedef struct Constrains {
-	// matrix representing left hand side of containt equations (Aij)
-    float **lhs;
+	// matrix representing left hand side of constrain equations (Aij)
+    double **lhs;
 
 	// vector representing right hand side of containt equations (Bi)
-    float *rhs;
+    double *rhs;
 } Constrains;
 
 /*
@@ -87,7 +87,7 @@ typedef struct Selection {
 * }
 */
 typedef struct ObjectiveFunction {
-    float *value;
+    double *value;
 } ObjectiveFunction;
 
 

@@ -1,7 +1,58 @@
 #include <time.h>
 #include <string.h>
+#include <math.h>
 #include "headers/utils.h"
 #include "headers/vars.h"
+
+
+void init(FILE *file) {
+
+    int i, j;
+
+    parseFile(file);
+
+    // create initial solution
+    curSolution.value = malloc(sizeof(int)*N);
+    variables = malloc(sizeof(Variable)*N);
+    for(i=0; i<N; i++) {
+        Variable variable;
+        variable.frequency = 0;
+        variable.recency = 0;
+        variable.value = 0;
+        variable.index = i;
+        variable.name = malloc(sizeof(char)*(ceil(log10(i > 1 ? i : 10))+2));
+        sprintf(variable.name+1, "%d", i);
+        variable.name[0] = 'X';
+
+        variables[i] = variable;
+
+        curSolution.value[i] = 0;
+    }
+
+    // create tabu list
+    tabulist = TabulistInit(TabuTenure);
+    TabulistPush(tabulist, curSolution);
+
+
+    // calculate PEN_R and PEN_F
+    PEN_R = 0;
+
+    for (j = 0; j < N; j++)
+    {
+        double sum = 0;
+        for (i = 0; i < M; i++)
+        {
+            sum += constrains->lhs[i][j] / constrains->rhs[i];
+        }
+
+        PEN_R = PEN_R < sum ? sum : PEN_R;
+        
+    }
+     
+
+    PEN_F = PEN_R/C;
+
+}
 
 
 void construct(){
@@ -13,8 +64,8 @@ void construct(){
         // get moves in descending order
         Selection selection = getSelection();
         Solution *moves = selection.moves;
-        Solution *move;
-        Solution *infeasible;
+        Solution *move = NULL;
+        Solution *infeasible = NULL;
         if(feasible) {
             // if solution still feasible ( step C1)
 
@@ -38,11 +89,12 @@ void construct(){
                 if(evalObjective(lastBest) < evalObjective(&curSolution)) {
                     // new best solution
                     addSolution(curSolution);
+                    changeSolution(&curSolution);
                 }
                 feasible = false;
-                tinker(&curSolution, infeasible);
-                construct();
+                // tinker(&curSolution, infeasible);
             }
+            construct();
         }
         else {
             // if solution is no more feasible ( step C2)
@@ -84,8 +136,8 @@ void destroy(){
         // get moves in ascending order of value 
         Selection selection = getSelection();
         Solution *moves = selection.moves;
-        Solution *move;
-        Solution *infeasible;
+        Solution *move = NULL;
+        Solution *infeasible = NULL;
 
         if(!feasible) {
             // if solution is not feasible ( step D1)
@@ -103,6 +155,7 @@ void destroy(){
                 if(evalObjective(lastBest) < evalObjective(move)) {
                     // new best solution
                     addSolution(*move);
+                    changeSolution(move);
                 }
                 tinker(move, infeasible);
             }
@@ -136,16 +189,25 @@ Solution makeMove(Variable *variable) {
 }
 
 Solution makeMoveFromSolution(Variable *variable, Solution *move ) {
-    move = move ? move : &curSolution;
     Solution newMove;
-    float size = sizeof(move->value);
+    double size = sizeof(move->value);
     newMove.value = malloc(size);
-    memcpy(newMove.value, move->value, size);
-    newMove.value[variable->index] = newMove.value[variable->index] ? 1 : 0;
+    for (int j = 0; j < N; j++) {
+        newMove.value[j] = move->value[j];
+    }
+    newMove.value[variable->index] = newMove.value[variable->index] ? 0 : 1;
+
+    for (int j = 0; j < N; j++) {
+        printf(" %d ", newMove.value[j]);
+    }
+    printf("\n");
+
     return newMove;
 }
 
 void addSolution(Solution solution) {
+
+    printf("added solution\n");
 
     static int indicator = 0, i;
 
@@ -170,6 +232,8 @@ void addSolution(Solution solution) {
             variables[i].recency++;
         }  
     }
+
+    // changeSolution(&solution);
 }
 
 Selection getSelection() {
@@ -177,14 +241,14 @@ Selection getSelection() {
     Selection selection;
     Solution temp;
     int size, i, j, k, test, *candidates;
-    float B, *value;
+    double B, *value;
 
     test = constructive ? 0 : 1;
     size = count(curSolution.value, N, test);
     selection.size = size;
     selection.moves = malloc(sizeof(Solution)*size);
     candidates = malloc(sizeof(int)*size);
-    value = malloc(sizeof(float)*size);
+    value = malloc(sizeof(double)*size);
 
     j = 0;
     for (i = 0; i < N; i++)
@@ -206,9 +270,9 @@ Selection getSelection() {
         // calculating W(i) && S(j)
         for(i = 0; i < M; i++)
         {
-            B = ( B = constrains.rhs[i] - scalaire(selection.moves[j].value, constrains.lhs[i], N)) > 0 ? 1/B : abs(B) + 2;
+            B = ( B = constrains->rhs[i] - scalaire(selection.moves[j].value, constrains->lhs[i], N)) > 0 ? 1/B : abs(B) + 2;
 
-            value[j] += B*constrains.lhs[i][k]; // S(j) = S(j) + W(i) * A(i,j)
+            value[j] += B*constrains->lhs[i][k]; // S(j) = S(j) + W(i) * A(i,j)
         }
 
         value[j] = objectiveFunction.value[j]/value[j]; // C(j)/S(j)
@@ -247,6 +311,13 @@ Selection getSelection() {
 
     free(candidates);
     free(value);
+
+    // for (i = 0; i < size; i++) {
+    //     for (j = 0; j < N; j++) {
+    //         printf(" %d ", selection.moves[i].value[j]);
+    //     }
+    //     printf("\n");
+    // } 
 
     return selection;
     
@@ -310,6 +381,7 @@ void tinkerFeasible(Solution* feasible) {
         Solution move = makeMoveFromSolution(variables+j, feasible);
         if(admissible(&move) && evalObjective(&move) > evalObjective(lastBest)) {
             addSolution(move);
+            changeSolution(&move);
         }
     }
 
@@ -350,6 +422,7 @@ void tinkerInfeasible(Solution* infeasible ) {
         Solution move = makeMoveFromSolution(variables+j, infeasible);
         if(admissible(&move) && evalObjective(&move) > evalObjective(lastBest)) {
             addSolution(move);
+            changeSolution(&move);
         }
     }
 
@@ -357,7 +430,7 @@ void tinkerInfeasible(Solution* infeasible ) {
 
 }
 
-float evalObjective(Solution *move)
+double evalObjective(Solution *move)
 {
     return scalaire(move->value, objectiveFunction.value, N);
 }
@@ -368,10 +441,10 @@ int admissible(Solution *move)
 
     for (int i = 0; i < M; ++i)
     {
-        result = scalaire(move->value, constrains.lhs[i], N);
+        result = scalaire(move->value, constrains->lhs[i], N);
 
         // Une contrainte a été violé admi reçoit faux
-        if (result > constrains.rhs[i])
+        if (result > constrains->rhs[i])
         {
             admi = false;
             break;
@@ -395,6 +468,12 @@ int count( int *array, int size, int val) {
 
 void changeSolution( Solution *move) {
     free(curSolution.value);
+
+    for (int j = 0; j < N; j++) {
+        printf(" %d ", move->value[j]);
+    }
+    printf("\n");
+
     curSolution = *move;
     for (int i = 0; i < N; i++)
     {
@@ -402,7 +481,7 @@ void changeSolution( Solution *move) {
     }
 }
 
-float scalaire( int *v1, float *v2, int size) {
+double scalaire( int *v1, double *v2, int size) {
     int j,result = 0;
     for (j = 0; j < size; ++j)
     {
@@ -414,7 +493,8 @@ float scalaire( int *v1, float *v2, int size) {
 
 void parseFile(FILE *file) {
 
-	int optimum, k, i, j;
+	int k, j;
+    double i, optimum;
 	char line[1024];
 	const char s[2] = " ";
 	char* token;
@@ -422,39 +502,39 @@ void parseFile(FILE *file) {
 	if (file != NULL)
 	{
 		// juste la premiere ligne: nombres de variables, contrainte, et valeur objective 
-		fscanf(file, "%d %d %d", &N, &M, &optimum); 
+		fscanf(file, "%d %d %lf", &N, &M, &optimum); 
 		fgetc(file); // go to line
 
 
 		// La seconde ligne : les coefficients
 
+        objectiveFunction.value = malloc(sizeof(double)*N);
 		fgets(line, 1024, file);
 		token = strtok(line, s);
 		k = 0;
 
-   		/* walk through other tokens */
+   		// /* walk through other tokens */
         while( token != NULL ) {
-	        i = atoi(token);
+	        i = (double) atof(token);
 	        *(objectiveFunction.value + k) = i;
 	        token = strtok(NULL, s);
 	        k = k + 1;
         }
 
 
-        // les M lignes suivantes pour les contraintes
+        // // les M lignes suivantes pour les contraintes
 
+        constrains = ConstrainsInit(M, N);
         for (j = 0; j < M; ++j)
         {
         	fgets(line, 1024, file);
 
         	token = strtok(line, s);
-        	float *inter;
         	k = 0;
 
-			inter = constrains.lhs[j];
         	while( token != NULL ) {
-		        i = atoi(token);
-		        inter[k] = i;
+		        i = (double) atof(token);
+		        constrains->lhs[j][k] = i;
 		        token = strtok(NULL, s);
 				k = k + 1;
 			}
@@ -470,8 +550,8 @@ void parseFile(FILE *file) {
 
    		/* walk through other tokens */
         while( token != NULL ) {
-	        i = atoi(token);
-	        constrains.rhs[k] = i;
+	        i = (double) atof(token);
+	        constrains->rhs[k] = i;
 	        token = strtok(NULL, s);
 	        k = k + 1;
         }
@@ -484,11 +564,6 @@ int getSpan()
 {
 
     int n;
-    time_t T;
-
-
-   /* Intializes random number generator */
-   srand((unsigned) time(&T));
 
    /* Print 1 random numbers from 0 to 5 */
     n = (rand() % 5) + 1;
