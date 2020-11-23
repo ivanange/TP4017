@@ -110,7 +110,7 @@ void construct(){
             }
 
         }
-        free(selection.moves);
+        // free(selection.moves);
 
     }
     else {
@@ -176,7 +176,7 @@ void destroy(){
             }
 
         }
-        free(selection.moves);
+        // free(selection.moves);
 
     }
     else {
@@ -467,7 +467,7 @@ int count( int *array, int size, int val) {
 }
 
 void changeSolution( Solution *move) {
-    free(curSolution.value);
+    // free(curSolution.value);
 
     for (int j = 0; j < N; j++) {
         printf(" %d ", move->value[j]);
