@@ -12,7 +12,8 @@ void init(FILE *file) {
     parseFile(file);
 
     // create initial solution
-    curSolution.value = malloc(sizeof(int)*N);
+    curSolution = malloc(sizeof(Solution));
+    curSolution->value = malloc(sizeof(int)*N);
     variables = malloc(sizeof(Variable)*N);
     for(i=0; i<N; i++) {
         Variable variable;
@@ -26,7 +27,7 @@ void init(FILE *file) {
 
         variables[i] = variable;
 
-        curSolution.value[i] = 0;
+        curSolution->value[i] = 0;
     }
 
     // create tabu list
@@ -63,7 +64,7 @@ void construct(){
 
         // get moves in descending order
         Selection selection = getSelection();
-        Solution *moves = selection.moves;
+        Solution **moves = selection.moves;
         Solution *move = NULL;
         Solution *infeasible = NULL;
         if(feasible) {
@@ -71,11 +72,11 @@ void construct(){
 
             // find a feasible move
             for(int i = 0; i < selection.size; i++) {
-                if(admissible(moves+i)) {
-                    move = moves+i;
+                if(admissible(moves[i])) {
+                    move = moves[i];
                     break;
                 }
-                else if(infeasible == NULL) infeasible = moves+i;
+                else if(infeasible == NULL) infeasible = moves[i];
             }
 
             if(move != NULL) {
@@ -86,14 +87,15 @@ void construct(){
                 // no feasible move, check if current solution is a new best then go to C2
 
                 Solution *lastBest = TabulistHead(tabulist);
-                if(evalObjective(lastBest) < evalObjective(&curSolution)) {
+                if(evalObjective(lastBest) < evalObjective(curSolution)) {
                     // new best solution
                     addSolution(curSolution);
-                    changeSolution(&curSolution);
+                    changeSolution(curSolution);
                 }
                 feasible = false;
                 // tinker(&curSolution, infeasible);
             }
+            freeSelection(&selection);
             construct();
         }
         else {
@@ -101,16 +103,17 @@ void construct(){
 
             if(selection.size == 0) {
                 // no moves posssible
+                freeSelection(&selection);
                 transfer();
             }
             else {
                 // do a move, and continue construction
-                changeSolution(moves);
+                changeSolution(moves[0]);
+                freeSelection(&selection);
                 construct();
             }
 
         }
-        // free(selection.moves);
 
     }
     else {
@@ -135,7 +138,7 @@ void destroy(){
 
         // get moves in ascending order of value 
         Selection selection = getSelection();
-        Solution *moves = selection.moves;
+        Solution **moves = selection.moves;
         Solution *move = NULL;
         Solution *infeasible = NULL;
 
@@ -143,10 +146,11 @@ void destroy(){
             // if solution is not feasible ( step D1)
 
             // retain infeasible move
-            infeasible = &curSolution;
+            infeasible = curSolution;
 
             // do a move
-            changeSolution(move = moves);
+            move = moves[0];
+            changeSolution(move);
 
             // if move is feasible go to D2, else continue in D1
             if(admissible(move)) {
@@ -154,11 +158,12 @@ void destroy(){
                 Solution *lastBest = TabulistHead(tabulist);
                 if(evalObjective(lastBest) < evalObjective(move)) {
                     // new best solution
-                    addSolution(*move);
+                    addSolution(move);
                     changeSolution(move);
                 }
                 tinker(move, infeasible);
             }
+            freeSelection(&selection);
             destroy(); // move to D2 or D1 depending on above outcome
             
         }
@@ -167,16 +172,17 @@ void destroy(){
 
             if(selection.size == 0) {
                 // no moves posssible
+                freeSelection(&selection);
                 transfer();
             }
             else {
                 // do a move, and continue destruction
-                changeSolution(moves);
+                changeSolution(moves[0]);
+                freeSelection(&selection);
                 destroy();
             }
 
         }
-        // free(selection.moves);
 
     }
     else {
@@ -184,30 +190,23 @@ void destroy(){
     }
 }
 
-Solution makeMove(Variable *variable) {
-    return makeMoveFromSolution(variable, &curSolution);
+Solution *makeMove(Variable *variable) {
+    return makeMoveFromSolution(variable, curSolution);
 }
 
-Solution makeMoveFromSolution(Variable *variable, Solution *move ) {
-    Solution newMove;
-    double size = sizeof(move->value);
-    newMove.value = malloc(size);
+Solution *makeMoveFromSolution(Variable *variable, Solution *move ) {
+    Solution *newMove = malloc(sizeof(Solution));
+    size_t size = sizeof(int)*N;
+    newMove->value = malloc(size);
     for (int j = 0; j < N; j++) {
-        newMove.value[j] = move->value[j];
+        newMove->value[j] = move->value[j];
     }
-    newMove.value[variable->index] = newMove.value[variable->index] ? 0 : 1;
-
-    for (int j = 0; j < N; j++) {
-        printf(" %d ", newMove.value[j]);
-    }
-    printf("\n");
+    newMove->value[variable->index] = newMove->value[variable->index] ? 0 : 1;
 
     return newMove;
 }
 
-void addSolution(Solution solution) {
-
-    printf("added solution\n");
+void addSolution(Solution *solution) {
 
     static int indicator = 0, i;
 
@@ -216,9 +215,9 @@ void addSolution(Solution solution) {
     // decrease recency of concerned variables when removing last TT+1 solution
     if(indicator > tabulist->max_size ) {
         indicator = 0;
-        Solution last = tabulist->list[tabulist->size];
+        Solution *last = tabulist->list[tabulist->size];
         for(i = 0; i < N; i++) {
-          if(last.value[i] == 1) variables[i].recency--;  
+          if(last->value[i] == 1) variables[i].recency--;  
         }
     }
 
@@ -227,7 +226,7 @@ void addSolution(Solution solution) {
 
     // update frequency and recency of corresponding variables
     for(i = 0; i < N; i++) {
-        if(solution.value[i] == 1) {
+        if(solution->value[i] == 1) {
             variables[i].frequency++;
             variables[i].recency++;
         }  
@@ -239,12 +238,12 @@ void addSolution(Solution solution) {
 Selection getSelection() {
     
     Selection selection;
-    Solution temp;
+    Solution *temp;
     int size, i, j, k, test, *candidates;
     double B, *value;
 
     test = constructive ? 0 : 1;
-    size = count(curSolution.value, N, test);
+    size = count(curSolution->value, N, test);
     selection.size = size;
     selection.moves = malloc(sizeof(Solution)*size);
     candidates = malloc(sizeof(int)*size);
@@ -253,7 +252,7 @@ Selection getSelection() {
     j = 0;
     for (i = 0; i < N; i++)
     {
-        if (curSolution.value[i] == test)
+        if (curSolution->value[i] == test)
         {
             candidates[j] = i;
             j++;
@@ -270,7 +269,7 @@ Selection getSelection() {
         // calculating W(i) && S(j)
         for(i = 0; i < M; i++)
         {
-            B = ( B = constrains->rhs[i] - scalaire(selection.moves[j].value, constrains->lhs[i], N)) > 0 ? 1/B : abs(B) + 2;
+            B = ( B = constrains->rhs[i] - scalaire(selection.moves[j]->value, constrains->lhs[i], N)) > 0 ? 1/B : abs(B) + 2;
 
             value[j] += B*constrains->lhs[i][k]; // S(j) = S(j) + W(i) * A(i,j)
         }
@@ -312,13 +311,6 @@ Selection getSelection() {
     free(candidates);
     free(value);
 
-    // for (i = 0; i < size; i++) {
-    //     for (j = 0; j < N; j++) {
-    //         printf(" %d ", selection.moves[i].value[j]);
-    //     }
-    //     printf("\n");
-    // } 
-
     return selection;
     
 }
@@ -352,12 +344,12 @@ void tinkerFeasible(Solution* feasible) {
     int a, b, temp, i, j, size, *candidates; 
     Solution *lastBest = TabulistHead(tabulist);
 
-    size = count(curSolution.value, N, 0);
+    size = count(curSolution->value, N, 0);
     candidates = malloc(sizeof(int)*size);
     j = 0;
     for (i = 0; i < N; i++)
     {
-        if (curSolution.value[i] == 0)
+        if (curSolution->value[i] == 0)
         {
             candidates[j] = i;
             j++;
@@ -378,10 +370,10 @@ void tinkerFeasible(Solution* feasible) {
     for (i = 0; i < size; i++)
     {
         j = candidates[i];
-        Solution move = makeMoveFromSolution(variables+j, feasible);
-        if(admissible(&move) && evalObjective(&move) > evalObjective(lastBest)) {
+        Solution *move = makeMoveFromSolution(variables+j, feasible);
+        if(admissible(move) && evalObjective(move) > evalObjective(lastBest)) {
             addSolution(move);
-            changeSolution(&move);
+            changeSolution(move);
         }
     }
 
@@ -393,12 +385,12 @@ void tinkerInfeasible(Solution* infeasible ) {
     int a, b, temp, i, j, size, *candidates; 
     Solution *lastBest = TabulistHead(tabulist);
 
-    size = count(curSolution.value, N, 1);
+    size = count(curSolution->value, N, 1);
     candidates = malloc(sizeof(int)*size);
     j = 0;
     for (i = 0; i < N; i++)
     {
-        if (curSolution.value[i] == 1)
+        if (curSolution->value[i] == 1)
         {
             candidates[j] = i;
             j++;
@@ -419,10 +411,10 @@ void tinkerInfeasible(Solution* infeasible ) {
     for (i = 0; i < size; i++)
     {
         j = candidates[i];
-        Solution move = makeMoveFromSolution(variables+j, infeasible);
-        if(admissible(&move) && evalObjective(&move) > evalObjective(lastBest)) {
+        Solution *move = makeMoveFromSolution(variables+j, infeasible);
+        if(admissible(move) && evalObjective(move) > evalObjective(lastBest)) {
             addSolution(move);
-            changeSolution(&move);
+            changeSolution(move);
         }
     }
 
@@ -467,17 +459,11 @@ int count( int *array, int size, int val) {
 }
 
 void changeSolution( Solution *move) {
-    // free(curSolution.value);
 
-    for (int j = 0; j < N; j++) {
-        printf(" %d ", move->value[j]);
-    }
-    printf("\n");
-
-    curSolution = *move;
+    curSolution = move;
     for (int i = 0; i < N; i++)
     {
-        variables[i].value = curSolution.value[i];
+        variables[i].value = curSolution->value[i];
     }
 }
 
@@ -569,4 +555,47 @@ int getSpan()
     n = (rand() % 5) + 1;
 
     return n ;
+}
+
+void freeSelection(Selection *selection) {
+
+    for (int i = 0; i < selection->size; i++)
+    {
+        if (selection->moves[i] != curSolution)
+        {
+            free(selection->moves[i]);
+        }
+        
+    }
+    free(selection->moves);
+    
+}
+
+
+void freeAll() {
+
+    // free current solution
+    free(curSolution->value);
+    free(curSolution);
+
+    // free constrains
+    free(constrains->rhs);
+    for(int i = 0; i < M; i++) {
+        free(constrains->lhs[i]);
+    }
+    free(constrains->lhs);
+
+    // free Tabulist
+    TabulistFree(tabulist);
+
+    // free variables
+    for(int i=0; i<N; i++) {
+        free(variables[i].name);
+    }
+    free(variables);
+
+
+    // free objective function
+    free(objectiveFunction.value);
+
 }

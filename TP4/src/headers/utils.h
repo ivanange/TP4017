@@ -31,14 +31,14 @@ void tinkerInfeasible(Solution* infeasible );
 * Construct new solution from current solution by inverting given variable
 * @param Variable* variable 
 */
-Solution makeMove(Variable *variable);
+Solution *makeMove(Variable *variable);
 
 /*
 * Construct new solution from a given solution by inverting given variable
 * @param Variable* variable 
 * @param Solution* move 
 */
-Solution makeMoveFromSolution(Variable *variable, Solution *move);
+Solution *makeMoveFromSolution(Variable *variable, Solution *move);
 
 /*
 * Get a value for span : a random number between 1 and 6 
@@ -61,7 +61,7 @@ double evalObjective(Solution *move);
 * Add solution to Tabu list and update variables accordingly
 * @param Solution solution 
 */
-void addSolution(Solution solution);
+void addSolution(Solution *solution);
 
 /*
 * Returns possible moves in order of their potential value in ASC or DESC order 
@@ -114,5 +114,20 @@ void changeSolution( Solution *move);
 * @param FILE file
 */
 void parseFile(FILE *file);
+
+
+/*
+* Free all allocated memory
+* @param FILE file
+*/
+void freeAll();
+
+/*
+* Free a Selection
+* @param Selection selection
+*/
+void freeSelection(Selection *selection);
+
+
 
 #endif

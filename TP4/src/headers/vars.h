@@ -29,7 +29,7 @@ int curIter = 0;
 * @var int 
 * constant representing maximum number of iterations
 */
-const int maxIter = 150;
+const int maxIter = 60000;
 
 
 /*
@@ -97,7 +97,7 @@ double PEN_R;
 * @var Solution 
 * Current solution
 */
-Solution curSolution;
+Solution *curSolution;
 
 /*
 * @var Constrain 

@@ -73,7 +73,7 @@ typedef struct Solution {
 */
 typedef struct Selection {
 	// possible moves
-	Solution *moves;
+	Solution **moves;
 
 	// size of the selection
 	int size;
@@ -103,7 +103,7 @@ typedef struct Tabulist {
 	int max_size;
 
 	// the list itself ( vector of solutions)
-	Solution *list;
+	Solution **list;
 } Tabulist;
 
 /*
@@ -117,7 +117,7 @@ Tabulist *TabulistInit(int size);
 * Add solution to Tabu list
 * @param Tabulist* q
 */
-void TabulistPush(Tabulist *q, Solution a);
+void TabulistPush(Tabulist *q, Solution *a);
 
 /*
 * Get last solution in Tabu list

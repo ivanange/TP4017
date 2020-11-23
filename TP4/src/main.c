@@ -31,9 +31,6 @@ int main(int argc, char **argv)
 
     if(file) {
         init(file);
-        // getSelection();
-        // curSolution = makeMove(variables);
-        // getSelection();
 
         while(curIter < maxIter) {
             printf("%d\n", curIter);
