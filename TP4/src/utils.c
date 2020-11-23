@@ -125,9 +125,7 @@ void transfer() {
     spanCount = 0;
     constructive = constructive ? false : true;
 
-    if(N > 6) {
-        span = getSpan();
-    }
+
 }
 
 void destroy(){
